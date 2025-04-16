@@ -1,0 +1,62 @@
+{{#partial "contenido"}}
+    <h1 class="mt-4">Panel de Administración</h1>
+    <p class="lead">Bienvenido al panel de administración de NutreVidas. Aquí puedes gestionar usuarios, colaboradores y heladeras.</p>
+
+    <h2>Gestión de Tarjetas</h2>
+    <p>Aquí puedes ver las Tarjetas</p>
+
+    {{#if error}}
+        <div class="alert alert-danger" role="alert">
+            {{error}}
+        </div>
+    {{/if}}
+
+    <!-- Tabla de Técnicos -->
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Codigo</th>
+            <th>Estado</th>
+            <th>Tipo</th>
+            <th>Fecha Inicio</th>
+            <th>Persona</th>
+            <th>Repartidor</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each tarjetas}}
+            <tr>
+                <td>{{this.id}}</td>
+                <td>{{this.codigoAlfaNumerico}}</td>
+                <td>
+                    {{#if this.estaHabilitada}}
+                        <span class="badge bg-success">Habilitada</span>
+                    {{else}}
+                        <span class="badge bg-danger">No Habilitada</span>
+                    {{/if}}
+                </td>
+                <td>{{this.tipoTarjeta}}</td>
+                <td>{{this.fechaInicioDeUso}}</td>
+                <td>
+                    {{#if this.persona}}
+                        {{this.persona.nombre}} {{this.persona.apellido}}
+                    {{else}}
+                        Colaborador
+                    {{/if}}
+                </td>
+                <td>{{this.repartidorDeTarjeta.nombre}}</td>
+            </tr>
+        {{/each}}
+        </tbody>
+    </table>
+{{/partial}}
+
+{{#partial "modals"}}
+
+{{/partial}}
+
+{{#partial "scripts"}}
+
+{{/partial}}
+{{> templates/admin/admin-base}}

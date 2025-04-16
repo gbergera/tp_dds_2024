@@ -1,0 +1,57 @@
+
+
+.reportes p {
+    margin-bottom: 20px;
+}
+
+.reporte-item {
+    background-color: #f5f5f5;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.reporte-item .title {
+    font-weight: bold;
+}
+
+.reporte-item .detalle {
+    display: none;
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.reporte-item .detalle-texto {
+    flex-grow: 1;
+}
+
+.reporte-item .btn-pdf:hover {
+    background-color: #1E8585;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination a {
+    margin: 0 5px;
+    text-decoration: none;
+    color: #1E8585;
+    padding: 5px 10px;
+    border: 1px solid #1E8585;
+    border-radius: 3px;
+}
+
+.pagination a.active {
+    background-color: #1E8585;
+    color: white;
+}
+
+.pagination a:hover:not(.active) {
+    background-color: #ddd;
+}

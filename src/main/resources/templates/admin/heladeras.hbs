@@ -1,0 +1,100 @@
+{{#partial "contenido"}}
+    <h1 class="mt-4">Panel de Administración</h1>
+    <p class="lead">Bienvenido al panel de administración de NutreVidas. Aquí puedes gestionar usuarios, colaboradores y heladeras.</p>
+
+    <!-- Gestión de Heladeras -->
+    <section id="heladeras">
+        <h2>Gestión de Heladeras</h2>
+        <p>Aquí puedes ver, editar y eliminar heladeras.</p>
+        <!-- Tabla de Heladeras -->
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Dirección</th>
+                <th>Administrador</th>
+                <th>Activa</th>
+                <th>Fecha Inicio</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each heladeras}}
+                <tr>
+                    <td>{{this.id}}</td>
+                    <td>{{this.nombre}}</td>
+                    <td>{{this.direccionActual.direccionCompleta}}</td>
+                    <td>{{this.administrador.nombre}}</td>
+                    <td>
+                        {{#if this.activa}}
+                            <span class="badge bg-success">Activa</span>
+                        {{else}}
+                            <span class="badge bg-danger">Inactiva</span>
+                        {{/if}}
+                    </td>
+                    <td data-date="{{this.fechaInicioFuncionamiento}}"></td>
+                    <td>
+                        <button class="btn custom-btn btn-sm" data-bs-toggle="modal" data-bs-target="#editHeladeraModal">Editar</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteHeladera({{this.id}})">Eliminar</button>
+                    </td>
+                </tr>
+            {{/each}}
+            </tbody>
+        </table>
+    </section>
+
+{{/partial}}
+
+{{#partial "modals"}}
+    <!-- Modal para Editar Heladera -->
+    <div class="modal fade" id="editHeladeraModal" tabindex="-1" aria-labelledby="editHeladeraModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editHeladeraModalLabel">Editar Heladera</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="editHeladeraName" class="form-label">Nombre:</label>
+                            <input type="text" class="form-control" id="editHeladeraName">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editHeladeraAddress" class="form-label">Dirección:</label>
+                            <input type="text" class="form-control" id="editHeladeraAddress">
+                        </div>
+                        <button type="submit" class="btn custom-btn">Guardar Cambios</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/partial}}
+
+{{#partial "scripts"}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        const dateCells = document.querySelectorAll('td[data-date]');
+        dateCells.forEach(cell => {
+            const rawDate = cell.getAttribute('data-date');
+            const date = new Date(rawDate);
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            cell.textContent = date.toLocaleDateString(undefined, options);
+        });
+    });
+        function deleteHeladera(id) {
+    fetch(`/administrador/heladera/${id}`, {
+        method: 'POST'
+    }).then(response => {
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            alert('Error al eliminar la heladera');
+        }
+    });
+}
+    </script>
+{{/partial}}
+{{> templates/admin/admin-base}}

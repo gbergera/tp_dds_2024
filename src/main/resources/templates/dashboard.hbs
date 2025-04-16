@@ -1,0 +1,668 @@
+{{#partial "head"}}
+
+{{/partial}}
+{{#partial "contenido"}}
+    <div class="d-flex justify-content-center align-items-center pt-3">
+        <h1 class="h2">Elige tu forma de colaborar!</h1>
+    </div>
+    <div class="d-flex justify-content-center align-items-center flex-grow-1 pb-5">
+        <div class="row justify-content-center">
+            <div class="{{#if isFisica}}col-md-6{{else}}col-md-4{{/if}} d-flex justify-content-center pb-3">
+                <button class="btn btn-donaciones mb-3" data-bs-toggle="modal" data-bs-target="#modalDonacionDinero">Donar dinero</button>
+            </div>
+            <div class="{{#if isFisica}}col-md-6{{else}}col-md-4{{/if}} d-flex justify-content-center pb-3">
+                <button class="btn btn-donaciones mb-3" data-bs-toggle="modal" data-bs-target="#modalDonacionVianda">Donar viandas</button>
+            </div>
+            <div class="{{#if isFisica}}col-md-6{{else}}col-md-4{{/if}} d-flex justify-content-center pb-3">
+                <button class="btn btn-donaciones mb-3" data-bs-toggle="modal" data-bs-target="#modalDistribucionVianda">Distribuir viandas</button>
+            </div>
+            {{#if isJuridica}}
+                <div class="col-md-4 d-flex justify-content-center pb-3">
+                    <button class="btn btn-donaciones mb-3" data-bs-toggle="modal" data-bs-target="#modalEncargarseDeHeladera">Encargarme de heladera</button>
+                </div>
+                <div class="col-md-4 d-flex justify-content-center pb-3">
+                    <button class="btn btn-donaciones mb-3" data-bs-toggle="modal" data-bs-target="#modalOfrecerCosas">Ofrecer producto / servicio</button>
+                </div>
+            {{/if}}
+            <div class="{{#if isFisica}}col-md-6{{else}}col-md-4{{/if}} d-flex justify-content-center pb-3">
+                <button class="btn btn-donaciones mb-3" data-bs-toggle="modal" data-bs-target="#modalRegistrarPersona">Registrar Persona</button>
+            </div>
+        </div>
+    </div>
+
+
+<!-- Modals -->
+
+<!-- Modal Donacion Dinero -->
+
+<div class="modal fade" id="modalDonacionDinero" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Donar Dinero</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/dashboard">
+            <div class="modal-body">
+                <input type="hidden" name="tipoColaboracion" value="donacionDinero">
+
+                <h5>Monto</h5>
+                <input type="number" class="form-control" id="monto" name="monto" placeholder="Ingrese monto en pesos">
+                <br>
+                <div class="input-group-append">
+                    <button type="button" class="btn btn-secondary" onclick="setMonto(1000)">$1.000</button>
+                    <button type="button" class="btn btn-secondary" onclick="setMonto(2000)">$2.000</button>
+                    <button type="button" class="btn btn-secondary" onclick="setMonto(5000)">$5.000</button>
+                    <button type="button" class="btn btn-secondary" onclick="setMonto(10000)">$10.000</button>
+                </div>
+                <br>
+                <h5>Frecuencia</h5>
+                <select class="form-select" id="frecuencia" name="frecuencia" onchange="showInputs()" required>
+                    <option value="UNICA">Único</option>
+                    <option value="SEMANAL">Semanal</option>
+                    <option value="MENSUAL">Mensual</option>
+                    <option value="ANUAL">Anual</option>
+                </select>
+
+            </div>
+            <br>
+            <div class="modal-footer">
+                <button type="submit" class="btn-donar" id="enviarDonacionDinero">Donar</button>
+            </div>
+            </form>
+            <script>
+                function setMonto(value) {
+                    document.getElementById('monto').value = value;
+                }
+            </script>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Donacion Viandas -->
+<div class="modal fade" id="modalDonacionVianda" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="donarVianda" >Donar Vianda</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/dashboard">
+            <div class="modal-body">
+                <input type="hidden" name="tipoColaboracion" value="donacionVianda">
+                <h5>Comida</h5>
+                <input type="text" class="form-control" id="nombreComida" name="nombreComida" placeholder="Comida">
+                <br>
+                <h5>Caducidad</h5>
+                <input type="date" class="form-control" id="fechaCaducidad" name="fechaCaducidad" placeholder="Fecha Caducidad">
+                <br>
+                <h5>Heladera</h5>
+                <select class="form-control mb-3" id="selectHeladeraVianda" name="heladeraNombre">
+                    <option value="" disabled selected>Selecciona una heladera</option>
+                </select>
+                <div id="mapDonacionVianda" class="map-modal" data-select-id="selectHeladeraVianda" style="height: 300px; border-radius: 10px;"></div>
+                <br>
+                <h5>Calorías</h5>
+                <input type="number" class="form-control" id="calorias" name="calorias" placeholder="Calorías">
+                <br>
+                <h5>Peso (En KG)</h5>
+                <input type="number" class="form-control" id="peso" name="peso" placeholder="Peso">
+                <br>
+                <h5>Cantidad</h5>
+                <input type="number" class="form-control" id="cantidadViandasDonadas" name="cantidad" placeholder="Cantidad">
+            </div>
+            <br>
+            <div class="modal-footer">
+                <button type="submit" class="btn-donar" id="enviarDonacionVianda">Donar</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Distribucion Viandas -->
+<div class="modal fade" id="modalDistribucionVianda" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="distribuirViandas">Distribuir Viandas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/dashboard">
+                <div class="modal-body">
+                    <input type="hidden" name="tipoColaboracion" value="distribuirViandas">
+                    <h5>Heladera Origen</h5>
+                    <select class="form-control mb-3" id="selectHeladeraOrigen" name="heladeraNombreOrigen">
+                        <option value="" disabled selected>Selecciona una heladera</option>
+                    </select>
+                    <div id="mapDistribucionViandaOrigen" class="map-modal" data-select-id="selectHeladeraOrigen" style="height: 300px; border-radius: 10px;"></div>
+                    <br>
+                    <br>
+                    <h5>Heladera Destino</h5>
+                    <select class="form-control mb-3" id="selectHeladeraDestino" name="heladeraNombreDestino">
+                        <option value="" disabled selected>Selecciona una heladera</option>
+                    </select>
+                    <div id="mapDistribucionViandaDestino" class="map-modal" data-select-id="selectHeladeraDestino" style="height: 300px; border-radius: 10px;"></div>
+                    <br>
+                    <br>
+                    <h5>Viandas Disponibles en Heladera de Origen</h5>
+                    <select class="form-control mb-3" id="selectViandasOrigen" name="viandasSeleccionadas[]" multiple>
+                        <option value="" disabled>Selecciona una o más viandas</option>
+                    </select>
+
+                    <br>
+                    <br>
+
+
+                <h5>Motivo</h5>
+                <textarea type="text" class="form-control custom-input" id="motivo" name="motivo" placeholder="Ingrese motivo"></textarea>
+            </div>
+            <br>
+            <div class="modal-footer">
+                <button type="submit" class="btn-donar" id="realizarDistribucion">Distribuir</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+    <div class="modal fade" id="modalEncargarseDeHeladera" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="encargarseHeladera">Encargarse de una Heladera</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="/dashboard" id="heladeraForm">
+                    <div class="modal-body">
+                        <input type="hidden" name="tipoColaboracion" value="encargarseHeladera">
+
+                        <div class="mb-3">
+                            <label for="nombreNuevaHeladera" class="form-label">Nombre de heladera</label>
+                            <input type="text" class="form-control" id="nombreNuevaHeladera" name="nombreHeladera" placeholder="Heladera" required>
+                            <div id="nombreHeladeraError" class="text-danger"></div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="direccion-provincia" class="form-label">Provincia</label>
+                                <select name="direccion.provincia" class="form-select" id="direccion-provincia" required onchange="cargarMunicipios2()">
+                                    <option selected disabled value="">
+                                        Seleccionar...
+                                    </option>
+                                    <!-- Opciones cargadas dinámicamente -->
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="direccion-municipio" class="form-label">Municipio</label>
+                                <select name="direccion.municipio" class="form-select" id="direccion-municipio" required onchange="cargarLocalidades2()">
+                                    <option selected disabled value="">
+                                        Seleccionar...
+                                    </option>
+                                    <!-- Opciones cargadas dinámicamente -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="direccion-localidad" class="form-label">Localidad</label>
+                                <select name="direccion.localidad" class="form-select" id="direccion-localidad" required>
+                                    <option selected disabled value="">
+                                        Seleccionar...
+                                    </option>
+                                    <!-- Opciones cargadas dinámicamente -->
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="direccion-calle" class="form-label">Calle</label>
+                                <input name="direccion.calle" type="text" class="form-control" id="direccion-calle" placeholder="Ingrese la calle"  required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="direccion-numero" class="form-label">Número</label>
+                                <input name="direccion.numero" type="number" class="form-control" id="direccion-numero" placeholder="Ingrese el número"  required>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="capacidad" class="form-label">Capacidad de viandas en la heladera</label>
+                                <input type="number" class="form-control" id="capacidad" name="capacidad" placeholder="Ingrese la cantidad de viandas que puede contener" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12 mb-3">
+                                <label for="modeloHeladera" class="form-label">Modelo de Heladera</label>
+                                <select name="modeloHeladera" class="form-select" id="modeloHeladera" required>
+                                    <option selected disabled value="">Seleccionar modelo...</option>
+                                    <!-- Opciones de modelos de heladeras se agregarán aquí dinámicamente -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-12">
+                                <label for="topicMqtt" class="form-label">Topic MQTT</label>
+                                <input type="text" class="form-control" id="topicMqtt" name="topicMQTT" placeholder="Ingrese el topic MQTT" required>
+                                <div id="topicMqttError" class="text-danger"></div>
+                            </div>
+                        </div>
+                        <!-- Coordenadas para recomendar ubicación -->
+                        <h5>Coordenadas para recomendar ubicación</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="latitud" class="form-label">Lat</label>
+                                <input type="text" class="form-control" id="latitud" placeholder="Latitud">
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="longitud" class="form-label">Long</label>
+                                <input type="text" class="form-control" id="longitud" placeholder="Longitud">
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-secondary w-100" id="recomendarUbicacion">Recomendar Ubicación</button>
+                    </div>
+                    <div id="mapUbicacion" style="height: 300px; border-radius: 10px;"></div> <!-- Contenedor del mapa -->
+                    <br>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn custom-btn" id="clickEncargarse">Encargarse</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<!-- Modal Ofrecer producto/servicio -->
+<div class="modal fade" id="modalOfrecerCosas" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ofrecerCosas" >Ofrecer Producto/Servicio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/dashboard" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <input type="hidden" name="tipoColaboracion" value="ofrecerProducto">
+                    <h5>Tipo</h5>
+                    <select class="form-select" id="tipoOfrecimiento" name="tipo" onchange="showInputs()" required>
+                        <option value="PRODUCTO">Producto</option>
+                        <option value="SERVICIO">Servicio</option>
+                    </select>
+                    <br>
+                    <h5>Nombre</h5>
+                    <input type="text" class="form-control" id="nombreProdServ" name="nombre" placeholder="Nombre del Producto o Servicio">
+                    <br>
+                    <h5>Descripción</h5>
+                    <input type="text" class="form-control" id="descricpion" name="descripcion" placeholder="Descripcion adicional">
+                    <br>
+                    <h5>Puntos</h5>
+                    <input type="text" class="form-control" id="puntosProd" name="puntos" placeholder="Ingrese la cantidad de puntos que costara">
+                    <h5>Rubro</h5>
+                    <input type="text" class="form-control" id="rubroProd" name="rubro" placeholder="Ingrese el rubro">
+                    <br>
+
+                    <h5>Imágenes</h5>
+                    <input type="file" class="form-control" id="imageInput" name="imagen" accept="image/*" multiple>
+                    <div id="imagePreview" style="margin-top: 10px; display: flex; flex-wrap: wrap;"></div>
+                </div>
+                <br>
+                <div class="modal-footer">
+                    <button type="submit" class="btn-donar" id="clickOfrecer">Ofrecer</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal Registrar Persona -->
+
+<div class="modal fade" id="modalRegistrarPersona" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registrarPersona" >Registrar Persona</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="/dashboard">
+            <div class="modal-body">
+                <input type="hidden" name="tipoColaboracion" value="registrarPersona">
+                <h5>Nombre</h5>
+                <input type="text" class="form-control" id="nombrePersona" name="nombre" placeholder="Nombre de la persona">
+                <br>
+                <h5>Apellido</h5>
+                <input type="text" class="form-control" id="apellidoPersona" name="apellido" placeholder="Apellido de la persona">
+                <br>
+                <h5>Fecha de Nacimiento</h5>
+                <input type="date" class="form-control" id="fechaNacimiento" name="fechaNacimiento" placeholder="">
+                <br>
+
+                <h5>Situación</h5>
+                <div class="radio-item">
+                    <input type="radio" name="situacion" value="CALLE" id="situacionCalle" onclick="toggleSituacionInput()">
+                    <label for="situacionCalle">Situación de calle</label>
+
+                    <input type="radio" name="situacion" value="CON_DOMICILIO" id="situacionDomicilio" onclick="toggleSituacionInput()">
+                    <label for="situacionDomicilio">Tiene Domicilio</label>
+                </div>
+                <br>
+                <div id="SituacioninputContainer"></div>
+                <br>
+
+                <h5>Documento</h5>
+                <select class="form-select" id="tipoDocumento" name="tipoDocumento" onchange="showDocInputs()" required>
+                    <option value="default">Seleccione un tipo de Documento</option>
+                    <option value="DNI">DNI</option>
+                    <option value="LIBRETA">Libreta</option>
+                    <option value="NADA">No tiene</option>
+                </select>
+                <br>
+
+                <div id="DocumentoInputContainer"></div>
+                <br>
+
+                <h5>Menores a Cargo</h5>
+                <div class="radio-item">
+                    <input type="radio" name="menores" value="si" id="menoresSi">
+                    <label for="menoresSi">Si</label>
+
+                    <input type="radio" name="menores" value="no" id="menoresNo">
+                    <label for="menoresNo">No</label>
+                </div>
+                <br>
+
+                <div id="inputContainerMenores"></div>
+                <!-- Cambia el tipo de botón de "submit" a "button" -->
+                <button type="button" class="btn btn-secondary" id="addMoreButton" style="display:none;">Agregar Menor</button>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="submit" class="btn-donar" id="clickRegistrarPersona">Registrar Persona</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{/partial}}
+{{#partial "scripts"}}
+    <script>
+        // Se llama a cargarProvincias cuando se carga la página
+        document.addEventListener("DOMContentLoaded", function() {
+            cargarProvincias();
+        });
+
+        function cargarProvincias() {
+            fetch('/provincias')
+                    .then(response => response.json())
+                    .then(data => {
+                        let provinciaSelect = document.getElementById('direccion-provincia-juridica');
+                        let provincias = data.provincias.sort((a, b) => a.nombre.localeCompare(b.nombre));
+                        provincias.forEach(provincia => {
+                            let option = document.createElement('option');
+                            option.value = provincia.nombre;
+                            option.text = provincia.nombre;
+                            option.setAttribute('data-id', provincia.id);
+                            provinciaSelect.add(option);
+                        });
+                    })
+                    .catch(error => console.error('Error al cargar las provincias:', error));
+        }
+
+        function cargarMunicipios(tipoPersona) {
+            let provinciaSelect = document.getElementById(`direccion-provincia-${tipoPersona}`);
+            if (!provinciaSelect) {
+                console.error(`Elemento con ID direccion-provincia-${tipoPersona} no encontrado`);
+                return;
+            }
+            let provinciaId = provinciaSelect.options[provinciaSelect.selectedIndex].getAttribute('data-id');
+            fetch(`/municipios?provinciaId=${provinciaId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al obtener los municipios');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        let municipioSelect = document.getElementById(`direccion-municipio-${tipoPersona}`);
+                        municipioSelect.innerHTML = ''; // Limpiar opciones anteriores
+
+                        // Agregar opción por defecto "Seleccionar..."
+                        let defaultOption = document.createElement('option');
+                        defaultOption.selected = true;
+                        defaultOption.disabled = true;
+                        defaultOption.value = '';
+                        defaultOption.text = 'Seleccionar...';
+                        municipioSelect.add(defaultOption);
+
+                        // Ordenar y agregar municipios
+                        let municipios = data.municipios.sort((a, b) => a.nombre.localeCompare(b.nombre));
+                        municipios.forEach(municipio => {
+                            let option = document.createElement('option');
+                            option.value = municipio.nombre;
+                            option.text = municipio.nombre;
+                            option.setAttribute('data-id', municipio.id);
+                            municipioSelect.add(option);
+                        });
+                    })
+                    .catch(error => console.error('Error al cargar los municipios:', error));
+        }
+
+
+        function cargarLocalidades(tipoPersona) {
+            let municipioSelect = document.getElementById(`direccion-municipio-${tipoPersona}`);
+            if (!municipioSelect) {
+                console.error(`Elemento con ID direccion-municipio-${tipoPersona} no encontrado`);
+                return;
+            }
+            let municipioId = municipioSelect.options[municipioSelect.selectedIndex].getAttribute('data-id');
+            fetch(`/localidades?municipioId=${municipioId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al obtener las localidades');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        let localidadSelect = document.getElementById(`direccion-localidad-${tipoPersona}`);
+                        localidadSelect.innerHTML = ''; // Limpiar opciones anteriores
+
+                        // Agregar opción por defecto "Seleccionar..."
+                        let defaultOption = document.createElement('option');
+                        defaultOption.selected = true;
+                        defaultOption.disabled = true;
+                        defaultOption.value = '';
+                        defaultOption.text = 'Seleccionar...';
+                        localidadSelect.add(defaultOption);
+
+                        // Ordenar y agregar localidades
+                        let localidades = data.localidades.sort((a, b) => a.nombre.localeCompare(b.nombre));
+                        localidades.forEach(localidad => {
+                            let option = document.createElement('option');
+                            option.value = localidad.nombre;
+                            option.text = localidad.nombre;
+                            localidadSelect.add(option);
+                        });
+                    })
+                    .catch(error => console.error('Error al cargar las localidades:', error));
+        }
+
+    document.getElementById('nombreNuevaHeladera').addEventListener('blur', function() {
+    const nombreHeladera = this.value;
+    const errorDiv = document.getElementById('nombreHeladeraError');
+    const submitButton = document.getElementById('clickEncargarse');
+
+    if (nombreHeladera) {
+        fetch(`/validarNombreHeladera?nombre=${encodeURIComponent(nombreHeladera)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    errorDiv.textContent = 'El nombre de la heladera ya existe.';
+                    submitButton.disabled = true;
+                } else {
+                    errorDiv.textContent = '';
+                    submitButton.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorDiv.textContent = 'Error al validar el nombre.';
+                submitButton.disabled = false;
+            });
+    } else {
+        errorDiv.textContent = '';
+        submitButton.disabled = false;
+    }
+});
+
+     document.getElementById('topicMqtt').addEventListener('blur', function() {
+    const topicMqtt = this.value;
+    const errorDiv = document.getElementById('topicMqttError');
+    const submitButton = document.getElementById('clickEncargarse');
+
+    if (topicMqtt) {
+        fetch(`/validarTopicMqtt?topic=${encodeURIComponent(topicMqtt)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    errorDiv.textContent = 'El topic MQTT ya está en uso.';
+                    submitButton.disabled = true;
+
+                } else {
+                    errorDiv.textContent = '';
+                    submitButton.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorDiv.textContent = 'Error al validar el topic.';
+                submitButton.disabled = false;
+            });
+    } else {
+        errorDiv.textContent = '';
+        submitButton.disabled = false;
+    }
+});
+
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            cargarProvincias2();
+        });
+
+        function cargarProvincias2() {
+            fetch('/provincias')
+                    .then(response => response.json())
+                    .then(data => {
+                        let provinciaSelect = document.getElementById('direccion-provincia');
+                        let provincias = data.provincias.sort((a, b) => a.nombre.localeCompare(b.nombre));
+                        provincias.forEach(provincia => {
+                            let option = document.createElement('option');
+                            option.value = provincia.nombre;
+                            option.text = provincia.nombre;
+                            option.setAttribute('data-id', provincia.id); // Store id as data attribute
+                            provinciaSelect.add(option);
+                        });
+                    });
+        }
+
+        function cargarMunicipios2() {
+            let provinciaSelect = document.getElementById('direccion-provincia');
+            let provinciaId = provinciaSelect.options[provinciaSelect.selectedIndex].getAttribute('data-id'); // Obtener id del atributo data-id
+            fetch(`/municipios?provinciaId=${provinciaId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let municipioSelect = document.getElementById('direccion-municipio');
+                        municipioSelect.innerHTML = ''; // Limpiar las opciones anteriores
+
+                        // Agregar opción por defecto "Seleccionar..."
+                        let defaultOption = document.createElement('option');
+                        defaultOption.selected = true;
+                        defaultOption.disabled = true;
+                        defaultOption.value = '';
+                        defaultOption.text = 'Seleccionar...';
+                        municipioSelect.add(defaultOption);
+
+                        // Ordenar y agregar los municipios
+                        let municipios = data.municipios.sort((a, b) => a.nombre.localeCompare(b.nombre));
+                        municipios.forEach(municipio => {
+                            let option = document.createElement('option');
+                            option.value = municipio.nombre;
+                            option.text = municipio.nombre;
+                            option.setAttribute('data-id', municipio.id); // Almacenar el id en un atributo data-id
+                            municipioSelect.add(option);
+                        });
+                    });
+        }
+
+        function cargarLocalidades2() {
+            let municipioSelect = document.getElementById('direccion-municipio');
+            let municipioId = municipioSelect.options[municipioSelect.selectedIndex].getAttribute('data-id'); // Obtener id del atributo data-id
+            fetch(`/localidades?municipioId=${municipioId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        let localidadSelect = document.getElementById('direccion-localidad');
+                        localidadSelect.innerHTML = ''; // Limpiar las opciones anteriores
+
+                        // Agregar opción por defecto "Seleccionar..."
+                        let defaultOption = document.createElement('option');
+                        defaultOption.selected = true;
+                        defaultOption.disabled = true;
+                        defaultOption.value = '';
+                        defaultOption.text = 'Seleccionar...';
+                        localidadSelect.add(defaultOption);
+
+                        // Ordenar y agregar las localidades
+                        let localidades = data.localidades.sort((a, b) => a.nombre.localeCompare(b.nombre));
+                        localidades.forEach(localidad => {
+                            let option = document.createElement('option');
+                            option.value = localidad.nombre;
+                            option.text = localidad.nombre;
+                            localidadSelect.add(option);
+                        });
+                    });
+        }
+
+    </script>
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            cargarModelosHeladeras();
+        });
+
+        function cargarModelosHeladeras() {
+            fetch('/api/modelos-heladeras')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al cargar los modelos de heladeras');
+                        }
+                        return response.json();
+                    })
+                    .then(modelos => {
+                        const select = document.getElementById('modeloHeladera');
+                        modelos.forEach(modelo => {
+                            const option = document.createElement('option');
+                            option.value = modelo.nombre;
+                            option.textContent = modelo.nombre;
+                            select.appendChild(option);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Hubo un problema con la carga de modelos:', error);
+                    });
+        }
+    </script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="/js/modal_map.js"></script>
+    <script src="/js/script.js"></script>
+    <script src="/js/map-encargarse.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+{{/partial}}
+
+{{> templates/base title="Colaborar - Nutrevidas"}}

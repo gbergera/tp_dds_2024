@@ -1,0 +1,79 @@
+{{#partial "head"}}
+    <link rel="stylesheet" href="/styles/misHeladeras.css">
+{{/partial}}
+{{#partial "contenido"}}
+    <div class="d-flex justify-content-center align-items-center pt-3">
+        <h1 class="h2">Mis Heladeras</h1>
+    </div>
+    <div class="d-flex justify-content-center align-items-center flex-grow-1 pb-5">
+        <div class="row justify-content-center w-100">
+            <div class="col-md-10">
+                <h4>Mis Registros</h4>
+                <p>Aquí podrás observar las distintas entregas de heladeras realizadas</p>
+
+                <!-- Iterar sobre la lista de heladeras -->
+                {{#each heladeras}}
+                    <div class="registro-item">
+                        <div class="title" onclick="toggleRegistro(this)">
+                            Registro de Heladeras del día
+                            <span class="fecha-registro" data-fecha="{{this.fechaInicioFuncionamiento}}"></span>
+                        </div>
+                        <ul>
+                            <li><strong>Nombre de la Heladera:</strong> {{this.nombre}}</li>
+                            <li><strong>Activa:</strong> {{#if this.activa}}Sí{{else}}No{{/if}}</li>
+                            {{#if this.fechaFinFuncionamiento}}
+                                <li><strong>Fecha fin Funcionamiento:</strong> <span class="fecha-fin" data-fecha="{{this.fechaFinFuncionamiento}}"></span></li>
+                            {{/if}}
+                            <li><strong>Capacidad de viandas:</strong> {{this.capacidad}}</li>
+                            <li><strong>Viandas colocadas:</strong> {{this.viandasColocadas}}</li>
+                            <li><strong>Viandas retiradas:</strong> {{this.viandasRetiradas}}</li>
+                            <li><strong>Dirección:</strong> {{this.direccionCompleta}}</li>
+                        </ul>
+                    </div>
+                {{/each}}
+
+            </div>
+            <!-- Paginación -->
+            <div class="pagination">
+                <a href="#" class="active">1</a>
+                <a href="#">2</a>
+                <a href="#">3</a>
+                <a href="#">...</a>
+                <a href="#">67</a>
+                <a href="#">68</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleRegistro(element) {
+            const ul = element.nextElementSibling;
+            if (ul && (ul.style.display === 'none' || ul.style.display === '')) {
+                ul.style.display = 'block';
+            } else if (ul) {
+                ul.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const elementosFecha = document.querySelectorAll('.fecha-registro, .fecha-fin');
+
+            elementosFecha.forEach(element => {
+                const fechaStr = element.getAttribute('data-fecha');
+
+                // Si la cadena solo tiene la fecha (sin la hora), agregamos la hora 00:00 para evitar problemas
+                let fecha = new Date(fechaStr.includes('T') ? fechaStr : `${fechaStr}T00:00:00`);
+
+                // Formato DD/MM/AAAA
+                const opciones = { day: '2-digit', month: '2-digit', year: 'numeric' };
+                const fechaFormateada = fecha.toLocaleString('es-ES', opciones);
+
+                element.textContent = fechaFormateada;
+            });
+        });
+    </script>
+    <script src="/js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+{{/partial}}
+{{> templates/base title="Mis heladeras - Nutrevidas" }}

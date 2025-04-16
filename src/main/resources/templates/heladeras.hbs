@@ -1,0 +1,65 @@
+{{#partial "mapa"}}
+    <div class="main-content flex-grow-1 map-content">
+        <div id="map"></div>
+    </div>
+{{/partial}}
+{{> templates/base title="Heladeras - Nutrevidas"}}
+<script>
+    // Inicializar el mapa
+var mymap = L.map('map').setView([-34.6037, -58.3816], 12);
+
+L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+    maxZoom: 18,
+    id: 'mapbox/streets-v11', // Estilo del mapa (puedes cambiarlo)
+    tileSize: 512,
+    zoomOffset: -1,
+    accessToken: 'pk.eyJ1IjoianJhaWptYW4iLCJhIjoiY2x2MmVzanMxMGY5YTJybjVmbXh5MW8weSJ9.NZEa7b9BPMe8znzHHNH8Tg' // Reemplaza con tu token de Mapbox
+  }).addTo(mymap);
+
+  // Define el icono de la heladera
+  var heladeraIcon = L.icon({
+    iconUrl: '../img/heladeraActiva.png',
+    iconSize: [38, 38],
+    iconAnchor: [19, 38],
+    popupAnchor: [0, -38]
+  });
+
+  var heladeraInactiveIcon = L.icon({
+    iconUrl: '../img/heladeraInactiva.png', // Icono de heladera inactiva
+    iconSize: [38, 38],
+    iconAnchor: [19, 38],
+    popupAnchor: [0, -38]
+});
+
+    var heladeras = [
+    {{#each heladeras}}
+        {
+            nombre: "{{this.nombre}}",
+            modelo: "{{this.modelo.nombre}}",
+            direccion:  {{#if this.direccionActual}} "{{this.direccionActual.direccionCompleta}}" {{else}} "Sin dirección" {{/if}},
+            latitud: {{#if this.ubicacionActual.latitud}}{{this.ubicacionActual.latitud}} {{else}}0.0{{/if}},
+            longitud: {{#if this.ubicacionActual.longitud}} {{this.ubicacionActual.longitud}} {{else}} 0.0{{/if}},
+            activa: {{this.activa}}
+        },
+    {{/each}}
+    ];
+
+
+
+  heladeras.forEach(function(heladera) {
+    var markerIcon = heladera.activa ? heladeraIcon : heladeraInactiveIcon;
+    var marker = L.marker([heladera.latitud, heladera.longitud], { icon: markerIcon }).addTo(mymap);
+    var popupContent = `
+    <div style="text-align: center;">
+        <h5 style="margin-bottom: 10px;">${heladera.nombre}</h5>
+        <h6 style="margin-bottom: 10px;">Modelo: ${heladera.modelo}</h6>
+        <p style="margin: 5px 0;">${heladera.direccion}</p>
+        <span class="badge ${heladera.activa ? 'bg-success' : 'bg-danger'}">
+            ${heladera.activa ? 'Activa' : 'Inactiva'}
+        </span></div>`;
+    marker.bindPopup(popupContent);
+
+});
+
+
+</script>

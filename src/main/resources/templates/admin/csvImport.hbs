@@ -1,0 +1,32 @@
+{{#partial "contenido"}}
+    <div class="d-flex justify-content-center align-items-center pt-3">
+        <h1 class="h2">Importar archivo CSV</h1>
+    </div>
+    <div class="d-flex justify-content-center align-items-center flex-grow-1 pb-5">
+        <div class="form-container-import">
+            <div class="mb-4">
+                <p>En esta sección, puedes importar un archivo CSV con los datos de las colaboraciones. Asegúrate de que el archivo tenga el siguiente formato:</p>
+                <ul>
+                    <li><strong>Tipo Doc:</strong> Texto, 3 caracteres (LC, LE, DNI)</li>
+                    <li><strong>Documento:</strong> Numérico, 10 caracteres</li>
+                    <li><strong>Nombre:</strong> Texto, 50 caracteres</li>
+                    <li><strong>Apellido:</strong> Texto, 50 caracteres</li>
+                    <li><strong>Mail:</strong> Texto, 50 caracteres (formato: usuario@dominio)</li>
+                    <li><strong>Fecha de colaboración:</strong> Fecha, 10 caracteres (formato: dd/mm/aaaa)</li>
+                    <li><strong>Forma de colaboración:</strong> Texto, 22 caracteres (DINERO, DONACION_VIANDAS, REDISTRIBUCION_VIANDAS, ENTREGA_TARJETAS)</li>
+                    <li><strong>Cantidad:</strong> Numérico, 7 caracteres</li>
+                </ul>
+                <p>Puedes descargar un archivo CSV de ejemplo <a href="/files/ejemplo.csv" style="color: #1E8585;" download>acá</a>.</p>
+            </div>
+            <form id="csvForm" enctype="multipart/form-data" method="post" action="/administrador/importadorCsv">
+                <div class="mb-3">
+                    <input type="file" name="archivo" class="form-control mb-5 mt-2" id="csvFile" accept=".csv" required>
+                </div>
+                <button type="submit" class="btn custom-btn" style="width: 100%;">Subir archivo</button>
+            </form>
+        </div>
+    </div>
+{{/partial}}
+{{> templates/admin/admin-base}}
+
+

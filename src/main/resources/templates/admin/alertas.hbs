@@ -1,0 +1,57 @@
+{{#partial "head"}}
+    <link rel="stylesheet" href="/styles/alertas.css">
+{{/partial}}
+
+{{#partial "contenido"}}
+    <h1 class="mt-4">Panel de Administración</h1>
+    <p class="lead">Bienvenido al panel de administración de NutreVidas. Aquí puedes gestionar usuarios, colaboradores y heladeras.</p>
+
+    <section id="Alertas">
+        <h2>Gestión de Alertas</h2>
+        <p>Aquí puedes ver las alertas del sistema.</p>
+    </section>
+    <div class="d-flex justify-content-center align-items-left flex-grow-1 pb-5">
+        <div class="row justify-content-left w-100">
+            <div class="col-md-10">
+                {{#each alertas}}
+                    <div class="alerta-item">
+                        <div class="title" onclick="toggleAlerta(this)">{{this.tipo}} {{this.fechaYHora}}</div>
+
+                        <p style="display:none;">{{this.nombreHeladera}}</p>
+                        <p style="display:none;">{{this.ubicacionHeladera}}</p>
+                    </div>
+                {{/each}}
+            </div>
+
+            <!-- Paginación -->
+            <div class="pagination">
+                <a href="#" class="active">1</a>
+                <a href="#">2</a>
+                <a href="#">3</a>
+                <a href="#">...</a>
+                <a href="#">67</a>
+                <a href="#">68</a>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.getElementById('menuBtn').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+
+        function toggleAlerta(element) {
+            let sibling = element.nextElementSibling;
+            while (sibling) {
+                if (sibling.tagName === "P") {
+                    sibling.style.display = (sibling.style.display === 'none' || sibling.style.display === '') ? 'block' : 'none';
+                }
+                sibling = sibling.nextElementSibling;
+            }
+        }
+
+    </script>
+
+{{/partial}}
+{{> templates/admin/admin-base}}

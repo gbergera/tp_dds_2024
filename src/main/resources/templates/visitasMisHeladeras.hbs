@@ -1,0 +1,87 @@
+{{#partial "head"}}
+    <link rel="stylesheet" href="../styles/registroDeFallas.css">
+{{/partial}}
+
+{{#partial "contenido"}}
+    <div class="d-flex justify-content-center align-items-center flex-grow-1 pb-5">
+        <div class="row justify-content-center w-100">
+            <div class="col-md-12">
+                <!-- Título -->
+                <h2 class="text-center mb-4">Visitas de técnicos</h2>
+
+                <ul id="listaVisitas" class="list-group" style="width: 100%;">
+                    {{#if visitas.length}}
+                        {{#each visitas}}
+                            <li class="list-group-item d-flex align-items-center p-4 mb-3 shadow-sm rounded-3" style="border: 1px solid #ddd;">
+                                <!-- Text Content -->
+                                <div class="d-flex flex-column me-3" style="flex: 1;">
+                                    <h5 class="mb-2">Técnico: {{this.reporte.tecnico.nombre}} {{this.reporte.tecnico.apellido}}</h5>
+                                    <h5 class="mb-2">{{this.heladeraVisitada.nombre}}</h5>
+                                    <h5 class="mb-2">{{this.heladeraVisitada.direccionActual.direccionCompleta}}</h5>
+                                    <h5 class="mb-2">{{this.descripcion}}</h5>
+                                    <p class="fecha-registro" data-fecha="{{this.fechaYHora}}"></p>
+
+                                    <p class="mb-2">
+                                        <strong>Estado:</strong>
+                                        {{#if this.solucionado}}
+                                            <span class="badge bg-success">Solucionado</span>
+                                        {{else}}
+                                            <span class="badge bg-danger">No Solucionado</span>
+                                        {{/if}}
+                                    </p>
+                                </div>
+
+                                <!-- Image Content with Link -->
+                                <div class="image-container" style="width: 300px;">
+                                    {{#if this.foto}}
+                                        <a href="/imagenes/{{this.foto}}" target="_blank">
+                                            <img src="/imagenes/{{this.foto}}"
+                                                 alt="{{this.foto}}"
+                                                 class="img-fluid rounded shadow-sm"
+                                                 style="max-height: 200px; object-fit: cover; width: 100%;">
+                                        </a>
+                                    {{else}}
+                                        <a href="/imagenes/sinfoto.jpg" target="_blank">
+                                            <img src="/imagenes/sinfoto.jpg"
+                                                 alt="Sin imagen"
+                                                 class="img-fluid rounded shadow-sm"
+                                                 style="max-height: 200px; object-fit: cover; width: 100%;">
+                                        </a>
+                                    {{/if}}
+                                </div>
+                            </li>
+                        {{/each}}
+                    {{else}}
+                        <li class="list-group-item text-center">No hay visitas registradas.</li>
+                    {{/if}}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const elementosFecha = document.querySelectorAll('.fecha-registro');
+
+            elementosFecha.forEach(element => {
+                const fechaStr = element.getAttribute('data-fecha');
+                const fecha = new Date(fechaStr);
+
+                if (!isNaN(fecha)) {  // Verifica si la fecha es válida
+                    // Formato DD/MM/AAAA HH:mm
+                    const opciones = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false };
+                    const fechaFormateada = fecha.toLocaleString('es-ES', opciones);
+                    element.textContent = fechaFormateada;
+                } else {
+                    console.warn('Fecha inválida:', fechaStr);
+                    element.textContent = 'Fecha no disponible';
+                }
+            });
+        });
+    </script>
+{{/partial}}
+
+{{#if isAdmin}}
+    {{> templates/admin/admin-base}}
+{{else}}
+    {{> templates/base title="Visitas de técnicos - Nutrevidas"}}
+{{/if}}

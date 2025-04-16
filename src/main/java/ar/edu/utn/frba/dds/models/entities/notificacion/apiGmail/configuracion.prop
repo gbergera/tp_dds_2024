@@ -1,0 +1,7 @@
+mail.smtp.host=smtp.gmail.com
+mail.smtp.port=587
+mail.smtp.user=smaacvs@gmail.com
+mail.smtp.password=bslztfylprnfzfdm
+mail.smtp.starttls.enable=true
+mail.smtp.auth=true
+mail.smtp.ssl.trust=smtp.gmail.com

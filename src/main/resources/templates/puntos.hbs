@@ -1,0 +1,218 @@
+{{#partial "head"}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.8.1/font/bootstrap-icons.min.css">
+    <!-- Incluir CSS de Select2 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+{{/partial}}
+{{#partial "contenido"}}
+    <div class="d-flex justify-content-center align-items-center pt-3">
+    <h1 class="h2">Catálogo de ofertas</h1>
+    </div>
+    <div class="justify-content-center flex-grow-1 pb-5">
+        <div class="row justify-content-center">
+            <!-- Sección de Buscador y botón -->
+            <div class="row align-items-center justify-content-between mb-4">
+                <div class="col-md-12">
+                    <h4>Puntos actuales: {{colaborador.puntos}}</h4>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex">
+                            <!-- Input de búsqueda -->
+                            <div class="input-group mb-2 mr-2">
+                                <input type="text" id="searchInput" class="form-control search-input" placeholder="Buscar" style="width=100%;">
+                                <span class="input-group-text" style="height:100%">
+                                    <i class="fas fa-search" style="height:100% align-items-center"></i>
+                                </span>
+                            </div>
+                            <!-- Select de rubro -->
+                            <div class="input-group mb-2">
+                                <select id="filterSelect" class="filter-select" multiple="multiple" style="width: 100%; margin-left: 20px;">
+                                    {{#each rubros}}
+                                        <option value="{{this.descripcion}}">{{this.descripcion}}</option>
+                                    {{/each}}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="d-flex">
+                            <a href="/misofertas" class="btn custom-btn me-2">Mis Ofertas</a>
+                            <a href="/miscompras" class="btn custom-btn">Mis Compras</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Sección de Cards -->
+            <div class="row" id="productContainer">
+                {{#each ofertas}}
+                    <div class="col-md-4 mb-4 oferta-card" data-detalle="{{this.nombre}} {{this.detalle}}" data-rubro="{{this.rubro.descripcion}}">
+                        <div class="card h-100 shadow-sm "  data-bs-toggle="modal" data-bs-target="#productModal-{{this.id}}" style="border-radius: 10px; overflow: hidden;" >
+                            {{#if this.imagen}}
+                                <img src="/imagenes/{{this.imagen}}" alt="{{this.nombre}}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                            {{else}}
+                                <img src="/imagenes/sinfoto.jpg" alt="{{this.nombre}}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                            {{/if}}
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title"><strong>{{this.nombre}}</strong></h5>
+                                    <p class="card-text"><small class="text-muted">{{this.puntos}} Puntos</small></p>
+                                </div>
+                                <p class="card-text">{{this.detalle}}</p>
+                                <p class="card-text"><small class="text-muted">{{this.colaborador.nombre}}</small></p>
+                                <p class="card-text"><small class="text-muted">Tipo de oferta: {{this.tipoOferta}}</small></p>
+                                <p class="card-text"><span class="badge bg-secondary">{{this.rubro.descripcion}}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+
+    {{#each ofertas}}
+    <!-- modals -->
+    <div class="modal fade" id="productModal-{{this.id}}" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">{{this.nombre}}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{#if this.imagen}}
+                                <img src="/imagenes/{{this.imagen}}" alt="{{this.nombre}}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                            {{else}}
+                                <img src="/imagenes/sinfoto.jpg" alt="{{this.nombre}}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                            {{/if}}
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Puntos necesarios: </strong>{{this.puntos}}</p>
+                            <p><strong>Descripción: </strong>{{this.detalle}}</p>
+                            <p><strong>Rubro: </strong>{{this.rubro.descripcion}}</p>
+                            <button type="button" class="btn custom-btn" onclick="conseguirProducto({{this.id}})">Conseguir</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{/each}}
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="successModalLabel">
+                        <i class="bi bi-check-circle-fill me-2"></i> Exitoso
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <p class="fs-4">Producto canjeado correctamente</p>
+                    <i class="bi bi-emoji-smile display-1 text-success"></i>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="errorModalLabel">
+                        <i class="bi bi-x-circle-fill me-2"></i> Error
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <!-- Aquí es donde se mostrará el mensaje dinámico -->
+                    <p id="errorMessage" class="fs-4">There was an error processing your redemption!</p>
+                    <i class="bi bi-emoji-frown display-1 text-danger"></i>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/partial}}
+{{#partial "scripts"}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const filterSelect = $('#filterSelect'); // Usar jQuery para seleccionar el elemento
+    const productContainer = document.getElementById('productContainer');
+    const productCards = productContainer.getElementsByClassName('oferta-card');
+
+    // Función para filtrar productos
+    function filterProducts() {
+        const searchText = searchInput.value.toLowerCase().trim(); // Asegúrate de eliminar espacios
+        const selectedRubros = filterSelect.val() || []; // Obtener los valores seleccionados
+        console.log('Rubros seleccionados:', selectedRubros);
+
+        Array.from(productCards).forEach(card => {
+            const detalle = card.getAttribute('data-detalle').toLowerCase();
+            const rubro = card.getAttribute('data-rubro');
+
+            const matchesSearch = detalle.includes(searchText);
+            const matchesRubro = selectedRubros.length === 0 || selectedRubros.includes(rubro); // Permite ver todos si no hay rubros seleccionados
+
+            // Muestra o esconde la tarjeta según las coincidencias
+            if (matchesSearch && matchesRubro) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // Agregar event listeners para activar el filtro
+    searchInput.addEventListener('input', filterProducts);
+    filterSelect.on('change', filterProducts); // Usar jQuery para el evento change
+
+    // Inicializar select2
+    $('#filterSelect').select2({
+        placeholder: "Filtrar por rubro",
+        allowClear: true
+    });
+});
+
+
+
+   function conseguirProducto(ofertaId) {
+       fetch(`/conseguir-producto/${ofertaId}`, {
+           method: 'POST',
+           headers: {
+               'Content-Type': 'application/json'
+           }
+       })
+       .then(response => {
+           if (response.ok) {
+                const successModalElement = document.getElementById('successModal');
+                const successModal = bootstrap.Modal.getOrCreateInstance(successModalElement); // Obtener la instancia del modal
+                successModal.show(); // Mostrar el modal de éxito
+
+           } else {
+               return response.text().then(text => {
+                const errorMessageElement = document.getElementById('errorMessage');
+                errorMessageElement.textContent = text;
+                const errorModalElement = document.getElementById('errorModal');
+                const errorModal = new bootstrap.Modal(errorModalElement);
+                errorModal.show();});
+           }
+       })
+       .catch(error => {
+           console.error('Error:', error);
+           alert(error.message);
+       });
+   }
+</script>
+    <!-- Incluir JS de jQuery y Select2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+{{/partial}}
+{{> templates/base title="Puntos - Nutrevidas"}}

@@ -1,0 +1,91 @@
+/* Asegúrate de tener estos estilos en base.css o agregarlos aquí */
+.content {
+    padding-top: 80px; /* Ajusta según la altura del header */
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.input-box {
+    margin-bottom: 20px;
+}
+
+.submit-button {
+    background-color: #1E8585;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.submit-button:hover {
+    background-color: #1E8585;
+}
+/* Estilos específicos para esta página */
+.content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100vh - 60px); /* Ajusta el alto para compensar el header fijo */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.form-container {
+    width: 80%; /* Ajusta este valor según tus necesidades */
+    max-width: 800px; /* Puedes ajustar el valor máximo si es necesario */
+    margin: 0 auto; /* Centra el contenedor horizontalmente */
+    padding: 20px; /* Añade un poco de padding para que no toque los bordes */
+    background-color: #f8f9fa; /* Color de fondo opcional */
+    border-radius: 5px; /* Bordes redondeados opcionales */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra opcional para darle un efecto de elevación */
+}
+
+.form-container h2 {
+    margin-top: 0;
+    font-size: 1.8rem;
+    color: #004d40;
+}
+
+.input-box {
+    margin-bottom: 20px;
+}
+
+.input-box input[type="file"] {
+    display: none;
+}
+
+.input-box label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.input-box button {
+    background-color: #1E8585;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.input-box button:hover {
+    background-color: #1E8585;
+}
+
+.submit-button {
+    background-color: #1E8585;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.submit-button:hover {
+    background-color: #1E8585;
+}

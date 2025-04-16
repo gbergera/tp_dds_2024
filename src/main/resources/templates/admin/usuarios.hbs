@@ -1,0 +1,86 @@
+{{#partial "contenido"}}
+    <h1 class="mt-4">Panel de Administración</h1>
+    <p class="lead">Bienvenido al panel de administración de NutreVidas. Aquí puedes gestionar usuarios, colaboradores y heladeras.</p>
+
+    <!-- Gestión de Usuarios -->
+    <section id="usuarios">
+        <h2>Gestión de Usuarios</h2>
+        <p>Aquí puedes ver, editar y eliminar usuarios.</p>
+        <!-- Tabla de Usuarios -->
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each usuarios}}
+                <tr>
+                    <td>{{this.id}}</td>
+                    <td>{{this.nombreUsuario}}</td>
+                    <td>
+                        {{#if this.estado}}
+                            <span class="badge bg-success">Activo</span>
+                        {{else}}
+                            <span class="badge bg-danger">Inactivo</span>
+                        {{/if}}
+                    </td>
+                    <td>
+                        <button class="btn custom-btn btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal">Editar</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteUsuario({{this.id}})">Eliminar</button>
+                    </td>
+                </tr>
+            {{/each}}
+            </tbody>
+        </table>
+    </section>
+
+{{/partial}}
+
+{{#partial "modals"}}
+
+    <!-- Modal para Editar Usuario -->
+    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">Editar Usuario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="editUserName" class="form-label">Nombre:</label>
+                            <input type="text" class="form-control" id="editUserName">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editUserEmail" class="form-label">Email:</label>
+                            <input type="email" class="form-control" id="editUserEmail">
+                        </div>
+                        <button type="submit" class="btn custom-btn">Guardar Cambios</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/partial}}
+
+{{#partial "scripts"}}
+    <script>
+        function deleteUsuario(id) {
+    fetch(`/administrador/usuario/${id}`, {
+        method: 'POST'
+    }).then(response => {
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            alert('Error al eliminar el Usuario');
+        }
+    });
+}
+    </script>
+{{/partial}}
+{{> templates/admin/admin-base}}

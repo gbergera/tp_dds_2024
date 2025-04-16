@@ -1,0 +1,139 @@
+{{#partial "contenido"}}
+    <h1 class="mt-4">Panel de Administración</h1>
+    <p class="lead">Bienvenido al panel de administración de NutreVidas. Aquí puedes gestionar usuarios, colaboradores y heladeras.</p>
+
+    <!-- Gestión de Formularios -->
+    <section id="formularios">
+        <h2>Gestión de Formularios</h2>
+        <p>Aquí puedes ver, editar y eliminar formularios.</p>
+        <!-- Tabla de Formulario -->
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each formularios}}
+                <tr>
+                    <td>{{this.id}}</td>
+                    <td>{{this.nombre}}</td>
+                    <td data-date="{{this.fechaFormulario}}"></td>
+                    <td>
+                        <button class="btn custom-btn btn-sm" data-bs-toggle="modal" data-bs-target="#editformularioModal">Editar</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteFormulario({{this.id}})">Eliminar</button>
+                    </td>
+                </tr>
+            {{/each}}
+            </tbody>
+        </table>
+        <button class="btn custom-btn mb-3"  data-bs-toggle="modal" data-bs-target="#createFormularioModal">Crear Formulario</button>
+    </section>
+
+{{/partial}}
+
+{{#partial "modals"}}
+    <!-- Modal para Crear Formulario -->
+    <div class="modal fade" id="createFormularioModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUserModalLabel">Crear Formulario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/administrador/formulario" method="post">
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre:</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" required>
+                        </div>
+                        <input type="hidden" id="questionCount" name="questionCount" value="0">
+                        <div id="questions"></div>
+                        <button type="button" class="btn btn-secondary" onclick="addQuestion()">Agregar Pregunta</button>
+                        <button type="submit" class="btn btn-primary">Crear</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/partial}}
+
+{{#partial "scripts"}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+       const dateCells = document.querySelectorAll('td[data-date]');
+       dateCells.forEach(cell => {
+           const rawDate = cell.getAttribute('data-date');
+           const date = new Date(rawDate);
+           const options = { year: 'numeric', month: 'long', day: 'numeric' };
+           cell.textContent = date.toLocaleDateString(undefined, options);
+       });
+   });
+       function deleteFormulario(id) {
+   fetch(`/administrador/formulario/${id}`, {
+       method: 'POST'
+   }).then(response => {
+       if (response.ok) {
+           window.location.reload();
+       } else {
+           alert('Error al eliminar el formulario');
+       }
+   });
+}
+       function addQuestion() {
+    const questionCount = document.getElementById('questionCount');
+    const count = parseInt(questionCount.value);
+    const newCount = count + 1;
+    questionCount.value = newCount;
+
+    const questionContainer = document.getElementById('questions');
+    const newQuestion = document.createElement('div');
+    newQuestion.innerHTML = `
+        <div class="mb-3">
+            <label for="pregunta${newCount}.texto" class="form-label">Pregunta ${newCount}:</label>
+            <input type="text" class="form-control" id="pregunta${newCount}.texto" name="pregunta${newCount}.texto" required>
+            <label for="pregunta${newCount}.tipo" class="form-label">Tipo:</label>
+            <select class="form-control" id="pregunta${newCount}.tipo" name="pregunta${newCount}.tipo" onchange="toggleOptions(${newCount})" required>
+                <option value="single_choice">Con Opciones</option>
+                <option value="open_ended">Sin Opciones</option>
+                <option selected disabled value="">Seleccionar...</option>
+            </select>
+            <div id="pregunta${newCount}.opciones" style="display: none;">
+                <label for="pregunta${newCount}.opcion1" class="form-label">Pregunta ${newCount} -Opción 1:</label>
+                <input type="text" class="form-control" id="pregunta${newCount}.opcion1" name="pregunta${newCount}.opciones[]">
+            </div>
+            <button type="button" class="btn btn-secondary mt-2" id="pregunta${newCount}.agregar" onclick="addOption(${newCount})" style="display: none;">Agregar Opción</button>
+        </div>
+    `;
+    questionContainer.appendChild(newQuestion);
+}
+
+function toggleOptions(questionIndex) {
+    const tipo = document.getElementById(`pregunta${questionIndex}.tipo`).value;
+    const opcionesDiv = document.getElementById(`pregunta${questionIndex}.opciones`);
+    const opcionesBtn = document.getElementById(`pregunta${questionIndex}.agregar`);
+    if (tipo === 'single_choice') {
+        opcionesDiv.style.display = 'block';
+        opcionesBtn.style.display = 'block';
+    } else {
+        opcionesDiv.style.display = 'none';
+        opcionesBtn.style.display = 'none';
+    }
+}
+
+function addOption(questionIndex) {
+    const opcionesDiv = document.getElementById(`pregunta${questionIndex}.opciones`);
+    const optionCount = opcionesDiv.getElementsByTagName('input').length + 1;
+    const newOption = document.createElement('div');
+    newOption.innerHTML = `
+        <label for="pregunta${questionIndex}.opcion${optionCount}" class="form-label">Pregunta ${questionIndex} - Opción ${optionCount}:</label>
+        <input type="text" class="form-control" id="pregunta${questionIndex}.opcion${optionCount}" name="pregunta${questionIndex}.opciones[]">
+    `;
+    opcionesDiv.appendChild(newOption);
+}
+    </script>
+{{/partial}}
+{{> templates/admin/admin-base}}

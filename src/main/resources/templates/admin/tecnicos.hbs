@@ -1,0 +1,224 @@
+{{#partial "contenido"}}
+    <h1 class="mt-4">Panel de Administración</h1>
+    <p class="lead">Bienvenido al panel de administración de NutreVidas. Aquí puedes gestionar usuarios, colaboradores y heladeras.</p>
+
+    <h2>Gestión de Técnicos</h2>
+    <p>Aquí puedes ver, editar y eliminar técnicos</p>
+
+    {{#if error}}
+        <div class="alert alert-danger" role="alert">
+            {{error}}
+        </div>
+    {{/if}}
+
+    <!-- Tabla de Técnicos -->
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
+            <th>Telefono</th>
+            <th>Localidad</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        {{#each tecnicos}}
+            <tr>
+                <td>{{this.id}}</td>
+                <td>{{this.nombre}}</td>
+                <td>{{this.apellido}}</td>
+                <td>{{this.mail}}</td>
+                <td>{{this.telefono}}</td>
+                <td>{{this.areaCobertura.nombre}}</td>
+                <td>
+                    <button class="btn custom-btn btn-sm" data-bs-toggle="modal" data-bs-target="#editTecnicoModal">Editar</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteTecnico({{this.id}})">Eliminar</button>
+                </td>
+            </tr>
+        {{/each}}
+        </tbody>
+    </table>
+    <button class="btn custom-btn mb-3" data-bs-toggle="modal" data-bs-target="#createTecnicoModal">Crear Técnico</button>
+{{/partial}}
+
+{{#partial "modals"}}
+    <!-- Modal para Crear Técnico -->
+    <div class="modal fade" id="createTecnicoModal" tabindex="-1" aria-labelledby="createTecnicoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createTecnicoModalLabel">Crear Técnico</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/administrador/tecnico" method="post">
+                        <div class="mb-3">
+                            <label for="usuario" class="form-label" >Usuario</label>
+                            <input name="usuario" type="text" class="form-control" id="usuario" placeholder="Ingrese un usuario" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="contrasenia" class="form-label">Contraseña</label>
+                            <input name="password" type="password" class="form-control" id="contrasenia" placeholder="Ingrese Contraseña" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmar-contrasenia" class="form-label">Confirmar Contraseña</label>
+                            <input name="check-password" type="password" class="form-control" id="confirmar-contrasenia" placeholder="Ingrese Contraseña" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre:</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="apellido" class="form-label">Apellido:</label>
+                            <input type="text" class="form-control" id="apellido" name="apellido" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Telefono:</label>
+                            <input type="tel" class="form-control" id="telefono" name="telefono" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mail" class="form-label">Email:</label>
+                            <input type="email" class="form-control" id="mail" name="mail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="metodo-notificacion-fisica" class="form-label">Método de Notificación:</label>
+                            <select class="form-control" id="metodo-notificacion-fisica" name="metodoDeNotificacion" required>
+                                <option value="EMAIL">Email</option>
+                                <option value="TELEGRAM">Telegram</option>
+                                <option value="WHATSAPP">Whatsapp</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 telegram-fields-fisica" style="display: none;">
+                            <label for="telegram-usuario-id" class="form-label">Usuario Telegram</label>
+                            <input name="telegram-usuario" type="text" class="form-control telegram-input" id="telegram-usuario-id" placeholder="Ingrese el Usuario ID">
+                        </div>
+                        <div class="mb-3 telegram-fields-fisica" style="display: none;">
+                            <label for="telegram-chat-id" class="form-label">Chat ID</label>
+                            <input name="telegram-chat-id" type="text" class="form-control telegram-input" id="telegram-chat-id" placeholder="Ingrese el Chat ID">
+                        </div>
+                        <div class="mb-3 mt-2">
+                            <label for="direccion-provincia" class="form-label">Provincia</label>
+                            <select name="direccion.provincia" class="form-select" id="direccion-provincia" required onchange="cargarMunicipios()">
+                                <option selected disabled value="">Seleccionar...</option>
+                                <option value="fallaGeoref">fallaGeoref</option>
+                                <!-- Opciones cargadas dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="direccion-municipio" class="form-label">Municipio</label>
+                            <select name="direccion.municipio" class="form-select" id="direccion-municipio" required onchange="cargarLocalidades()">
+                                <option selected disabled value="">Seleccionar...</option>
+                                <option value="fallaGeoref">fallaGeoref</option>
+                                <!-- Opciones cargadas dinámicamente -->
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="direccion-localidad" class="form-label">Localidad</label>
+                            <select name="direccion.localidad" class="form-select" id="direccion-localidad" required>
+                                <option selected disabled value="">Seleccionar...</option>
+                                <option value="fallaGeoref">fallaGeoref</option>
+                                <!-- Opciones cargadas dinámicamente -->
+                            </select>
+                        </div>
+                        <button type="submit" class="btn custom-btn">Crear</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/partial}}
+
+{{#partial "scripts"}}
+    <script>
+        function deleteTecnico(id) {
+           fetch(`/administrador/tecnico/${id}`, {
+               method: 'POST'
+           }).then(response => {
+               if (response.ok) {
+                   window.location.reload();
+               } else {
+                   alert('Error al eliminar el técnico');
+               }
+           });
+       }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        cargarProvincias();
+    document.getElementById('metodo-notificacion-fisica').addEventListener('change', toggleTelegramFields);
+
+    });
+
+    function cargarProvincias() {
+        fetch('/provincias')
+            .then(response => response.json())
+            .then(data => {
+                let provinciaSelectFisica = document.getElementById('direccion-provincia');
+                let provincias = data.provincias.sort((a, b) => a.nombre.localeCompare(b.nombre));
+                provincias.forEach(provincia => {
+                  let optionFisica = document.createElement('option');
+                    optionFisica.value = provincia.nombre;
+                    optionFisica.text = provincia.nombre;
+                    optionFisica.setAttribute('data-id', provincia.id); // Store id as data attribute
+                    provinciaSelectFisica.add(optionFisica);
+                });
+            });
+    }
+function cargarMunicipios() {
+    let provinciaSelect = document.getElementById('direccion-provincia');
+    let provinciaId = provinciaSelect.options[provinciaSelect.selectedIndex].getAttribute('data-id'); // Get id from data attribute
+    fetch(`/municipios?provinciaId=${provinciaId}`)
+        .then(response => response.json())
+        .then(data => {
+            let municipioSelect = document.getElementById('direccion-municipio');
+            municipioSelect.innerHTML = ''; // Limpiar opciones anteriores
+
+             // Agregar opción por defecto "Seleccionar..."
+                let defaultOption = document.createElement('option');
+                defaultOption.selected = true;
+                defaultOption.disabled = true;
+                defaultOption.value = '';
+                defaultOption.text = 'Seleccionar...';
+                municipioSelect.add(defaultOption);
+
+            let municipios = data.municipios.sort((a, b) => a.nombre.localeCompare(b.nombre));
+            municipios.forEach(municipio => {
+                let option = document.createElement('option');
+                option.value = municipio.nombre;
+                option.text = municipio.nombre;
+                option.setAttribute('data-id', municipio.id); // Store id as data attribute
+                municipioSelect.add(option);
+            });
+        });
+}
+
+function cargarLocalidades() {
+    let municipioSelect = document.getElementById('direccion-municipio');
+    let municipioId = municipioSelect.options[municipioSelect.selectedIndex].getAttribute('data-id'); // Get id from data attribute
+    fetch(`/localidades?municipioId=${municipioId}`)
+        .then(response => response.json())
+        .then(data => {
+            let localidadSelect = document.getElementById('direccion-localidad');
+            localidadSelect.innerHTML = ''; // Limpiar opciones anteriores
+
+            let defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.text = 'Seleccionar...';
+            defaultOption.selected = true;
+            defaultOption.disabled = true;
+            localidadSelect.add(defaultOption);
+
+            let localidades = data.localidades.sort((a, b) => a.nombre.localeCompare(b.nombre));
+            localidades.forEach(localidad => {
+                let option = document.createElement('option');
+                option.value = localidad.nombre;
+                option.text = localidad.nombre;
+                localidadSelect.add(option);
+            });
+        });
+}
+    </script>
+{{/partial}}
+{{> templates/admin/admin-base}}

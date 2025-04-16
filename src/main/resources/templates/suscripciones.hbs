@@ -1,0 +1,149 @@
+{{#partial "contenido"}}
+    <div class="d-flex justify-content-center align-items-center pt-3">
+        <h1 class="h2">Suscribirme a una heladera</h1>
+    </div>
+    <div class="d-flex justify-content-center align-items-center flex-grow-1 pb-3">
+        <div class="row justify-content-center w-100">
+            <div class="col-md-4 d-flex justify-content-center">
+                <button class="btn btn-suscripciones mb-3" data-bs-toggle="modal" data-bs-target="#modalViandasDisponibles">Cantidad de viandas disponibles</button>
+            </div>
+            <div class="col-md-4 d-flex justify-content-center">
+                <button class="btn btn-suscripciones mb-3" data-bs-toggle="modal" data-bs-target="#modalViandasLlena">Cantidad de viandas para que se llene</button>
+            </div>
+            <div class="col-md-4 d-flex justify-content-center">
+                <button class="btn btn-suscripciones mb-3" data-bs-toggle="modal" data-bs-target="#modalDesperfectoHeladera">Desperfecto de heladera</button>
+            </div>
+        </div>
+    </div>
+    <!-- Sección Mis Suscripciones -->
+    <div class="d-flex justify-content-center align-items-center pt-4">
+        <h2 class="h3">Mis Suscripciones</h2>
+    </div>
+    <!-- Contenedor para la lista de suscripciones -->
+    <div class="d-flex justify-content-center align-items-center flex-grow-1 pb-5">
+        <div class="row justify-content-center w-100">
+            <div class="col-md-12">
+                <ul id="listaSuscripciones" class="list-group">
+                    {{#if suscripciones.length}}
+                        {{#each suscripciones}}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <!-- Check if the heladera name exists -->
+                                <span>Heladera: {{this.nombreHeladera}}</span>
+                                <!-- Lógica para cantidadMinima -->
+                                {{#if this.cantidadMinima}}
+                                    <span>Suscripcion de Cantidad mínima: {{this.cantidadMinima}}</span>
+                                {{else if this.cantidadMaxima}}
+                                    <span>Suscripcion de Cantidad máxima: {{this.cantidadMaxima}}</span>
+                                {{else}}
+                                    <span>Suscripcion de desperfecto de Heladera</span>
+                                {{/if}}
+                                <form method="POST" action="/suscripciones/eliminar" style="margin: 0;">
+                                    <input type="hidden" name="id-eliminar" value="{{this.id}}">
+                                    <button type="submit" class="btn btn-danger btn-sm">Cancelar Suscripción</button>
+                                </form>
+                            </li>
+                        {{/each}}
+                    {{else}}
+                        <li class="list-group-item">No tienes suscripciones activas.</li>
+                    {{/if}}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modals -->
+    <!-- Modal Viandas Disponibles -->
+    <div class="modal fade" id="modalViandasDisponibles" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="/suscripciones">
+                    <input type="hidden" name="modal_type" value="SuscripcionViandasDisponibles">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Cantidad de viandas disponibles</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h5>Heladera</h5>
+                        <select name="heladera" class="form-control mb-3" id="selectHeladeraDispo">
+                            <option value="" disabled selected>Selecciona una heladera</option>
+                        </select>
+                        <div id="mapViandasDisponibles" class="map-modal" data-select-id="selectHeladeraDispo" style="height: 300px; border-radius: 10px;"></div>
+                        <br>
+                        <h5>Cantidad mínima de viandas</h5>
+                        <input name="cantidad_viandas" type="number" class="form-control" id="cantidad" placeholder="Ingrese cantidad minima">
+                        <br>
+                    </div>
+                    <br>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn-donar" id="enviarViandasDisponibles">Suscribirme</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Viandas Llena -->
+    <div class="modal fade" id="modalViandasLlena" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="/suscripciones">
+                    <input type="hidden" name="modal_type" value="SuscripcionHeladeraLlena">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Cantidad de viandas para que se llene</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h5>Heladera</h5>
+                        <select name="heladera" class="form-control mb-3" id="selectHeladeraLleno">
+                            <option value="" disabled selected>Selecciona una heladera</option>
+                        </select>
+                        <div id="mapViandasLleno" class="map-modal" data-select-id="selectHeladeraLleno" style="height: 300px; border-radius: 10px;"></div>
+                        <br>
+                        <h5>Cantidad de viandas para llenarse</h5>
+                        <input name="cantidad_viandas_llena" type="number" class="form-control" id="cantidad" placeholder="Ingrese cantidad">
+                        <br>
+                    </div>
+                    <br>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn-donar" id="enviarViandasLlena">Suscribirme</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Desperfecto Heladera -->
+    <div class="modal fade" id="modalDesperfectoHeladera" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="/suscripciones">
+                    <input type="hidden" name="modal_type" value="SuscripcionHeladeraDesperfecto">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Desperfecto de heladera</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h5>Heladera</h5>
+                        <select name="heladera" class="form-control mb-3" id="selectHeladeraDesper">
+                            <option value="" disabled selected>Selecciona una heladera</option>
+                        </select>
+                        <div id="mapViandasDesper" class="map-modal" data-select-id="selectHeladeraDesper" style="height: 300px; border-radius: 10px;"></div>
+                        <br>
+                    </div>
+                    <br>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn-donar" id="enviarDesperfectoHeladera">Suscribirme</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="../js/modal_map.js"></script>
+    <script src="../js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+{{/partial}}
+{{> templates/base title="Suscripciones - Nutrevidas" }}

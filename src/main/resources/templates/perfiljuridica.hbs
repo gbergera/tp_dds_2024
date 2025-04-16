@@ -1,0 +1,181 @@
+{{#partial "contenido"}}
+    <div class="d-flex justify-content-center align-items-center pt-3">
+        <h1 class="h2">Bienvenido, {{colaborador.nombre}}!</h1>
+    </div>
+    <div class="d-flex justify-content-center align-items-center flex-grow-1 pb-5">
+        <div class="row justify-content-center">
+            <form class="col-md-10" action="/perfil" method="post">
+                <div class="row justify-content-center">
+                    <div class="col-10">
+                        <h5 style="color: #1E8585;">Datos personales</h5>
+                    </div>
+                    <div class="col-md-5 ">
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">Nombre</label>
+                            <input name="nombre" type="text" class="form-control" id="nombre" placeholder="Nombre" value="{{colaborador.nombre}}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label for="cuit" class="form-label">Cuit</label>
+                            <input disabled name="documento" type="number" class="form-control" id="cuit" placeholder="Ingrese un Cuit" value="{{colaborador.documento.numeroDocumento}}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label for="direccion-provincia" class="form-label">Provincia</label>
+                            <select name="direccion.provincia" class="form-select" id="direccion-provincia" required onchange="cargarMunicipios()">
+                                <option selected disbaled value="{{colaborador.direccion.localidad.municipio.provincia.nombre}}">{{colaborador.direccion.localidad.municipio.provincia.nombre}}</option>
+                                <!-- Opciones cargadas dinámicamente -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label for="direccion-municipio" class="form-label">Municipio</label>
+                            <select name="direccion.municipio" class="form-select" id="direccion-municipio" required onchange="cargarLocalidades()">
+                                <option selected disabled value="{{colaborador.direccion.localidad.municipio.nombre}}">{{colaborador.direccion.localidad.municipio.nombre}}</option>
+                                <!-- Opciones cargadas dinámicamente -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label for="direccion-localidad" class="form-label">Localidad</label>
+                            <select name="direccion.localidad" class="form-select" id="direccion-localidad" required>
+                                <option selected disabled value="{{colaborador.direccion.localidad.nombre}}">{{colaborador.direccion.localidad.nombre}}</option>
+                                <!-- Opciones cargadas dinámicamente -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label for="direccion-calle" class="form-label">Calle</label>
+                            <input name="direccion.calle" type="text" class="form-control" id="direccion-calle" placeholder="Ingrese la calle" value="{{colaborador.direccion.calle}}" required>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label for="direccion-numero" class="form-label">Número</label>
+                            <input name="direccion.numero" type="number" class="form-control" id="direccion-numero" placeholder="Ingrese el número" value="{{colaborador.direccion.numero}}" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-center mt-4">
+                    <div class="col-10">
+                        <h5 style="color: #1E8585;">Medios de contacto</h5>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input name="email" type="email" class="form-control" id="email" placeholder="Email" value="{{colaborador.mail}}">
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input name="telefono" type="tel" class="form-control" id="telefono" placeholder="Teléfono" value="{{colaborador.telefono}}">
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="mb-3">
+                            <label for="metodo-notificacion" class="form-label">Metodo de Notificacion</label>
+                            <select name="metodo-notificacion" class="form-select" id="metodo-notificacion" required>
+                                <option selected disabled value="{{colaborador-notif}}">{{colaborador-notif}}</option>
+                                <option  value="EMAIL">Email</option>
+                                <option value="TELEGRAM">Telegram</option>
+                                <option value="WHATSAPP">Whatsapp</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-5 mt-2 telegram-fields" style="display: none;">
+                        <label for="telegram-usuario-id" class="form-label">Usuario Telegram</label>
+                        <input name="telegram-usuario" type="text" class="form-control" id="telegram-usuario-id" placeholder="Ingrese el Usuario ID" value="{{colaborador.usuarioTelegram}}">
+                    </div>
+                    <div class="col-md-5 mt-2 telegram-fields" style="display: none;">
+                        <label for="telegram-chat-id" class="form-label">Chat ID</label>
+                        <input name="telegram-chat-id" type="text" class="form-control" id="telegram-chat-id" placeholder="Ingrese el Chat ID" value="{{colaborador.chatTelegramId}}">
+                    </div>
+                </div>
+                <div class="text-center mt-5">
+                    <button type="submit" class="btn custom-btn">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+    cargarProvincias();
+    document.getElementById('metodo-notificacion').addEventListener('change', toggleTelegramFields);
+    // Initial check to show/hide fields based on the current value
+    toggleTelegramFields();
+});
+
+function toggleTelegramFields() {
+    const metodoNotificacion = document.getElementById('metodo-notificacion').value.toUpperCase();;
+    const telegramFields = document.getElementsByClassName('telegram-fields');
+     for (let i = 0; i < telegramFields.length; i++) {
+        telegramFields[i].style.display = metodoNotificacion === 'TELEGRAM' ? 'block' : 'none';
+        if (metodoNotificacion === 'TELEGRAM') {
+            telegramFields[i].querySelector('input').setAttribute('required', 'required');
+        } else {
+            telegramFields[i].querySelector('input').removeAttribute('required');
+        }
+    }
+}
+
+function cargarProvincias() {
+    fetch('/provincias')
+        .then(response => response.json())
+        .then(data => {
+            let provinciaSelect = document.getElementById('direccion-provincia');
+            let provincias = data.provincias.sort((a, b) => a.nombre.localeCompare(b.nombre));
+            provincias.forEach(provincia => {
+                let option = document.createElement('option');
+                option.value = provincia.nombre;
+                option.text = provincia.nombre;
+                option.setAttribute('data-id', provincia.id); // Store id as data attribute
+                provinciaSelect.add(option);
+            });
+        });
+}
+
+function cargarMunicipios() {
+    let provinciaSelect = document.getElementById('direccion-provincia');
+    let provinciaId = provinciaSelect.options[provinciaSelect.selectedIndex].getAttribute('data-id'); // Get id from data attribute
+    fetch(`/municipios?provinciaId=${provinciaId}`)
+        .then(response => response.json())
+        .then(data => {
+            let municipioSelect = document.getElementById('direccion-municipio');
+            municipioSelect.innerHTML = ''; // Clear previous options
+            let municipios = data.municipios.sort((a, b) => a.nombre.localeCompare(b.nombre));
+            municipios.forEach(municipio => {
+                let option = document.createElement('option');
+                option.value = municipio.nombre;
+                option.text = municipio.nombre;
+                option.setAttribute('data-id', municipio.id); // Store id as data attribute
+                municipioSelect.add(option);
+            });
+        });
+}
+
+function cargarLocalidades() {
+    let municipioSelect = document.getElementById('direccion-municipio');
+    let municipioId = municipioSelect.options[municipioSelect.selectedIndex].getAttribute('data-id'); // Get id from data attribute
+    fetch(`/localidades?municipioId=${municipioId}`)
+        .then(response => response.json())
+        .then(data => {
+            let localidadSelect = document.getElementById('direccion-localidad');
+            localidadSelect.innerHTML = ''; // Clear previous options
+            let localidades = data.localidades.sort((a, b) => a.nombre.localeCompare(b.nombre));
+            localidades.forEach(localidad => {
+                let option = document.createElement('option');
+                option.value = localidad.nombre;
+                option.text = localidad.nombre;
+                localidadSelect.add(option);
+            });
+        });
+}
+    </script>
+{{/partial}}
+{{> templates/base title="Perfil - Nutrevidas"}}

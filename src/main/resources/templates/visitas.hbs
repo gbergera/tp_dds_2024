@@ -1,0 +1,53 @@
+{{#partial "contenido"}}
+
+    <h3 class="text-center my-4">Visitas para el Incidente en: {{incidente.heladeraAfectada.nombre}}</h3>
+    {{#if visitas}}
+        <ul class="list-group mb-4">
+            {{#each visitas}}
+                <li class="list-group-item mb-3 shadow-sm p-3 rounded-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="mb-1"><strong>Fecha y Hora:</strong><span data-date="{{this.fechaYHora}}"></span></p>
+                            <p class="mb-1"><strong>Descripción:</strong> {{this.descripcion}}</p>
+                            <p class="mb-1"><strong>Solucionado:</strong>
+                                {{#if this.solucionado}}
+                                    <span class="badge bg-success">Sí</span>
+                                {{else}}
+                                    <span class="badge bg-danger">No</span>
+                                {{/if}}
+                            </p>
+                        </div>
+
+                        <!-- Foto de la visita -->
+                        {{#if this.foto}}
+                            <div class="ms-3">
+                                <img src="/imagenes/{{this.foto}}" alt="Foto de la visita" class="img-thumbnail" style="width: 120px; height: auto;">
+                            </div>
+                        {{/if}}
+                    </div>
+                </li>
+            {{/each}}
+        </ul>
+    {{else}}
+        <p class="alert alert-warning">No hay visitas registradas para este incidente.</p>
+    {{/if}}
+
+    <a href="/tecnico" class="btn btn-secondary">Volver a la lista de incidentes</a>
+
+{{/partial}}
+
+
+{{#partial "scripts"}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateElements = document.querySelectorAll('span[data-date]');
+            dateElements.forEach(element => {
+                const rawDate = element.getAttribute('data-date');
+                const date = new Date(rawDate);
+                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                element.textContent += ' ' + date.toLocaleDateString('es-ES',  options);
+            });
+        });
+    </script>
+{{/partial}}
+{{>templates/tecnico-base}}

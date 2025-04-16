@@ -1,0 +1,99 @@
+{{#partial "contenido"}}
+    <h1 class="mt-4">Panel de Administración</h1>
+    <p class="lead">Bienvenido al panel de administración de NutreVidas. Aquí puedes gestionar usuarios, colaboradores y heladeras.</p>
+
+    <!-- Gestión de Colaboradores -->
+    <section id="colaboradores">
+        <h2>Gestión de Colaboradores</h2>
+        <p>Aquí puedes ver, editar y eliminar colaboradores.</p>
+        <!-- Tabla de Colaboradores -->
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Tipo Documento</th>
+                <th>Numero Documento</th>
+                <th>Tarjeta</th>
+                <th>Tipo Persona</th>
+                <th>Formulario Contestado</th>
+                <th>Email</th>
+                <th>Activo</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each colaboradores}}
+                <tr>
+                    <td>{{this.id}}</td>
+                    <td>{{this.nombre}}</td>
+                    <td>{{this.documento.tipoDocumento}}</td>
+                    <td>{{this.documento.numeroDocumento}}</td>
+                    <td>{{this.obtenerUltimaTarjeta.codigoAlfaNumerico}}</td>
+                    <td>{{this.tipoPersona}}</td>
+                    <td>{{this.formulario.formulario.nombre}}</td>
+                    <td>{{this.mail}}</td>
+                    <td>
+                        {{#if this.activo}}
+                            <span class="badge bg-success">Activo</span>
+                        {{else}}
+                            <span class="badge bg-danger">Inactivo</span>
+                        {{/if}}
+                    </td>
+                    <td>
+                        <button class="btn custom-btn btn-sm" data-bs-toggle="modal" data-bs-target="#editColaboradorModal">Editar</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteColaborador({{this.id}})">Eliminar</button>
+                    </td>
+                </tr>
+            {{/each}}
+            </tbody>
+        </table>
+    </section>
+
+{{/partial}}
+
+{{#partial "modals"}}
+
+
+    <!-- Modal para Editar Colaborador -->
+    <div class="modal fade" id="editColaboradorModal" tabindex="-1" aria-labelledby="editColaboradorModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editColaboradorModalLabel">Editar Colaborador</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="editColaboradorName" class="form-label">Nombre:</label>
+                            <input type="text" class="form-control" id="editColaboradorName">
+                        </div>
+                        <div class="mb-3">
+                            <label for="editColaboradorEmail" class="form-label">Email:</label>
+                            <input type="email" class="form-control" id="editColaboradorEmail">
+                        </div>
+                        <button type="submit" class="btn custom-btn">Guardar Cambios</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/partial}}
+
+{{#partial "scripts"}}
+    <script>
+        function deleteColaborador(id) {
+     fetch(`/administrador/colaborador/${id}`, {
+         method: 'POST'
+     }).then(response => {
+         if (response.ok) {
+             window.location.reload();
+         } else {
+             alert('Error al eliminar el Colaborador');
+         }
+     });
+ }
+    </script>
+{{/partial}}
+{{> templates/admin/admin-base}}

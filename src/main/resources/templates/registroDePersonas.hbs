@@ -1,0 +1,82 @@
+{{#partial "head"}}
+        <link rel="stylesheet" href="/styles/registroDePersonas.css">
+{{/partial}}
+{{#partial "contenido"}}
+    <div class="d-flex justify-content-center align-items-center pt-3">
+        <h1 class="h2">Registro de Personas</h1>
+    </div>
+    <div class="d-flex justify-content-center align-items-center flex-grow-1 pb-5">
+        <div class="row justify-content-center w-100">
+            <div class="col-md-10">
+                <h4>Mis Registros</h4>
+                <p>Aquí podrás observar las distintas entregas de tarjetas realizadas</p>
+
+                <!-- Iterar sobre la lista de personas -->
+                {{#each personas}}
+                    <div class="registro-item">
+                        <div class="title" onclick="toggleRegistro(this)">
+                            Registro de Personas del día
+                            <span class="fecha-registro" data-fecha="{{this.fechaRegistro}}"></span>
+                        </div>
+                        <ul>
+                            <li>{{this.apellido}} , {{this.nombre}}</li>
+                            {{#if hijos.length}}
+                                <li><strong>Hijos: </strong></li>
+                                    {{#each hijos}}
+                                        <li> {{../apellido}} , {{this.nombre}}</li>
+                                    {{/each}}
+
+                            {{else}}
+                                <p><strong>No hay hijos registrados.</strong></p>
+                            {{/if}}
+
+                        </ul>
+                    </div>
+                {{/each}}
+
+            </div>
+            <!-- Paginación -->
+            <!-- Paginación (sin helpers) -->
+            <div class="pagination">
+                {{#each paginas}}
+                    <a href="/registroDePersonas?page={{this.numero}}&size=5" class="{{this.clase}}">
+                    {{this.numero}}
+                    </a>
+                {{/each}}
+            </div>
+
+        </div>
+    </div>
+
+
+    <script>
+        function toggleRegistro(element) {
+            const ul = element.nextElementSibling;
+            if (ul && (ul.style.display === 'none' || ul.style.display === '')) {
+                ul.style.display = 'block';
+            } else if (ul) {
+                ul.style.display = 'none';
+            }
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const elementosFecha = document.querySelectorAll('.fecha-registro');
+
+            elementosFecha.forEach(element => {
+                const fechaStr = element.getAttribute('data-fecha');
+                const fecha = new Date(fechaStr); // Asegúrate de que fechaStr sea una cadena que pueda ser convertida en Date
+
+                // Formato DD/MM/AAAA HH:mm
+                const opciones = { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false };
+                const fechaFormateada = fecha.toLocaleString('es-ES', opciones); // Cambia el idioma según sea necesario
+
+                element.textContent = fechaFormateada;
+            });
+        });
+    </script>
+    <script src="/js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+{{/partial}}
+{{> templates/base title="Registro de personas - Nutrevidas" }}

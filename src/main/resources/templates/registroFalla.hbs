@@ -1,0 +1,280 @@
+{{#partial "head"}}
+    <link rel="stylesheet" href="../styles/registroDeFallas.css">
+{{/partial}}
+
+{{#partial "contenido"}}
+    <div class="d-flex justify-content-center align-items-center pt-3">
+        <h1 class="h2">Registro de fallas</h1>
+    </div>
+
+    <!-- Two-column layout -->
+    <div class="d-flex justify-content-center align-items-center pt-5">
+        <div class="row" style="width: 80%;">
+            <!-- Column 1: Form -->
+            <div class="col-md-6">
+                <div class="ReportesDeFalla">
+                    <br>
+                    <h2>Registrar Nueva Falla</h2>
+                    <p>Por favor llene los siguientes campos para que un técnico se acerque a solucionar su problema</p>
+                    <br>
+                    <form method="POST" action="/registroDeFallas" enctype="multipart/form-data">
+                        <div class="fallas">
+                            <label for="tipo-falla">Tipo de Falla</label>
+                            <select id="tipo-falla" name="tipo-falla" class="form-select" required>
+                                <option value="" disabled selected>Selecciona un tipo de falla</option>
+                            </select>
+
+                            <label for="heladera">Heladera</label>
+                            <select class="form-control mb-3" id="selectHeladeraRegistroFalla" name="heladera" required>
+                                <option value="" disabled selected>Selecciona una heladera</option>
+                            </select>
+
+                            <label for="descripcion">Descripción Adicional</label>
+                            <textarea id="descripcion" class="form-control" name="descripcion"
+                                      placeholder="Ingrese una descripción adicional"></textarea>
+
+                            <!-- New Section for Images -->
+                            <label for="imagenes" class="mt-3">Imágenes (opcional)</label>
+                            <input type="file" id="imagenes" name="fotos" class="form-control mb-3" multiple accept="image/*">
+
+                            <button type="submit" class="btn custom-btn mt-3" style="width: 100%;">Registrar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Column 2: Map -->
+            <div class="col-md-6">
+                <br>
+                <div id="mapRegistroFalla" class="map-content-registro-falla" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-center align-items-center pt-5">
+        <h2 class="h3">Mis Fallas Registradas</h2>
+    </div>
+
+    <!-- Contenedor para la lista de fallas -->
+    <div class="d-flex justify-content-center align-items-center flex-grow-1 pb-5">
+        <div class="row justify-content-center w-100">
+            <div class="col-md-12">
+                <ul id="listaFallas" class="list-group" style="width: 100%;">
+                    {{#if fallas.length}}
+                        {{#each fallas}}
+                            <li class="list-group-item d-flex align-items-center p-4 mb-3 shadow-sm rounded-3" style="border: 1px solid #ddd;">
+                                <!-- Text Content -->
+                                <div class="d-flex flex-column me-3" style="flex: 1;">
+                                    <h5 class="mb-2">{{this.heladeraAfectada.nombre}}</h5>
+                                    <p class="mb-1 text-muted">{{this.incidente.descripcion}}</p>
+                                    {{#if this.tecnico}}
+                                        <p class="mb-1 text-muted">
+                                            <strong>Técnico Asignado:</strong> {{this.tecnico.nombre}} {{this.tecnico.apellido}}
+                                        </p>
+                                    {{else}}
+                                        <p class="mb-1 text-muted">
+                                            <strong>Técnico Asignado:</strong> Sin técnico asignado
+                                        </p>
+                                    {{/if}}
+                                    <p class="mb-2">
+                                        <strong>Estado:</strong>
+                                        {{#if this.solucionado}}
+                                            <span class="badge bg-success">Solucionado</span>
+                                        {{else}}
+                                            <span class="badge bg-danger">No Solucionado</span>
+                                        {{/if}}
+                                    </p>
+                                </div>
+
+                                <!-- Image Content with Link -->
+                                <div class="image-container" style="width: 300px;">
+                                    {{#if this.foto}}
+                                        <a href="/imagenes/{{this.foto}}" target="_blank">
+                                            <img src="/imagenes/{{this.foto}}"
+                                                 alt="{{this.foto}}"
+                                                 class="img-fluid rounded shadow-sm"
+                                                 style="max-height: 200px; object-fit: cover; width: 100%;">
+                                        </a>
+                                    {{else}}
+                                        <a href="/imagenes/sinfoto.jpg" target="_blank">
+                                            <img src="/imagenes/sinfoto.jpg"
+                                                 alt="Sin imagen"
+                                                 class="img-fluid rounded shadow-sm"
+                                                 style="max-height: 200px; object-fit: cover; width: 100%;">
+                                        </a>
+                                    {{/if}}
+                                </div>
+                            </li>
+                        {{/each}}
+                    {{else}}
+                        <li class="list-group-item text-center">No tienes fallas registradas.</li>
+                    {{/if}}
+                </ul>
+            </div>
+        </div>
+    </div>
+{{/partial}}
+{{#partial "scripts"}}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            crossorigin="anonymous"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+    var maps = {};
+
+
+    function initMap(containerId, selectId) {
+        if (maps[containerId]) {
+            maps[containerId].remove();
+        }
+
+
+        var map = L.map(containerId).setView([-34.6037, -58.3816], 12);
+
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}&language=es', {
+            maxZoom: 18,
+            id: 'mapbox/streets-v11',
+            tileSize: 512,
+            zoomOffset: -1,
+            accessToken: 'pk.eyJ1IjoianJhaWptYW4iLCJhIjoiY2x2MmVzanMxMGY5YTJybjVmbXh5MW8weSJ9.NZEa7b9BPMe8znzHHNH8Tg'
+        }).addTo(map);
+
+
+        var heladeraIcon = L.icon({
+            iconUrl: '../img/heladeraActiva.png',
+            iconSize: [38, 38],
+            iconAnchor: [19, 38],
+            popupAnchor: [0, -38]
+        });
+
+
+        fetch('/api/heladeras')
+            .then(response => response.json())
+            .then(heladeras => {
+                console.log(heladeras);  // Para depuración
+
+                var selectHeladera = document.getElementById(selectId);
+                if (!selectHeladera) {
+                    console.error('No se encontró el dropdown con el ID ' + selectId);
+                    return;
+                }
+
+                if (!Array.isArray(heladeras)) {
+                    heladeras = [heladeras];
+                }
+
+                heladeras.forEach(function (heladera) {
+                    var option = document.createElement('option');
+                    option.value = heladera.nombre;
+                    option.text = `${heladera.nombre} - ${heladera.direcciones?.[0]?.calle || 'Sin dirección'}`;
+                    selectHeladera.appendChild(option);
+                });
+
+                // Agregar un listener para cuando se selecciona una heladera
+                selectHeladera.addEventListener('change', function () {
+                    // Obtener el select de viandas
+                    var selectViandas = document.getElementById('selectViandasOrigen');
+                    if (!selectViandas) {
+                        console.error('No se encontró el dropdown de viandas');
+                        return;
+                    }
+
+                    // Limpiar opciones del select de viandas
+                    selectViandas.innerHTML = '<option value="" disabled>Selecciona una o más viandas</option>';
+
+                    // Obtener la heladera seleccionada
+                    var selectedHeladera = heladeras.find(h => h.nombre === selectHeladera.value);
+                    if (selectedHeladera && selectedHeladera.viandas) {
+                        selectedHeladera.viandas.forEach(function (vianda) {
+                            var viandaOption = document.createElement('option');
+                            viandaOption.value = vianda.id;  // Asumiendo que vianda tiene un ID
+                            // Cambiar aquí para mostrar el nombre de la comida
+                            viandaOption.text = `${vianda.comida.nombre}`;
+                            selectViandas.appendChild(viandaOption);
+                        });
+                    }
+                });
+
+                heladeras.forEach(function (heladera) {
+                    if (heladera.ubicaciones && heladera.ubicaciones.length > 0) {
+                        var marker = L.marker([heladera.ubicaciones[0].latitud, heladera.ubicaciones[0].longitud], {icon: heladeraIcon}).addTo(map);
+
+                        marker.on('click', function (e) {
+                            e.originalEvent.preventDefault();
+                            selectHeladera.value = heladera.nombre;
+                            selectHeladera.dispatchEvent(new Event('change')); // Disparar el evento de cambio
+                        });
+                    }
+                });
+            })
+            .catch(error => console.error('Error al obtener heladeras:', error));
+    }
+
+
+        function populateTiposFallas(selectId) {
+        fetch('/api/tiposFallas')
+            .then(response => response.json())
+            .then(tiposFallas => {
+                console.log(tiposFallas);  // Para depuración
+
+                var selectTipoFalla = document.getElementById(selectId);
+                if (!selectTipoFalla) {
+                    console.error('No se encontró el dropdown con el ID ' + selectId);
+                    return;
+                }
+
+                // Llenar el select de tipos de fallas con la descripción
+                tiposFallas.forEach(function (tipoFalla) {
+                    var option = document.createElement('option');
+                    option.value = tipoFalla.id;  // Usar "id" como valor
+                    option.text = tipoFalla.descripcion;  // Mostrar "descripcion" en lugar de "nombre"
+                    selectTipoFalla.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error al obtener tipos de fallas:', error));
+    }
+
+    function populateFallasOnly(selectId) {
+        fetch('/api/tiposFallas/fallas')
+            .then(response => response.json())
+            .then(tiposFallas => {
+                console.log(tiposFallas);  // Para depuración
+
+                var selectTipoFalla = document.getElementById(selectId);
+                if (!selectTipoFalla) {
+                    console.error('No se encontró el dropdown con el ID ' + selectId);
+                    return;
+                }
+
+                // Llenar el select de tipos de fallas con la descripción
+                tiposFallas.forEach(function (tipoFalla) {
+                    var option = document.createElement('option');
+                    option.value = tipoFalla.id;  // Usar "id" como valor
+                    option.text = tipoFalla.descripcion;  // Mostrar "descripcion" en lugar de "nombre"
+                    selectTipoFalla.appendChild(option);
+                });
+            })
+            .catch(error => console.error('Error al obtener tipos de fallas:', error));
+    }
+
+
+    $('.modal').on('shown.bs.modal', function () {
+        var mapContainers = $(this).find('.map-modal');
+        mapContainers.each(function () {
+            var mapContainer = $(this);
+            if (mapContainer.length) {
+                var selectId = mapContainer.data('select-id');
+                initMap(mapContainer.attr('id'), selectId);
+            }
+        });
+    });
+
+    initMap('mapRegistroFalla', 'selectHeladeraRegistroFalla');
+    populateFallasOnly('tipo-falla');
+});
+
+    </script>
+{{/partial}}
+
+{{> templates/base title="Registro de Fallas - Nutrevidas" }}

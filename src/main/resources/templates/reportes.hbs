@@ -1,0 +1,66 @@
+{{#partial "head"}}
+    <link rel="stylesheet" href="/styles/reportes.css">
+{{/partial}}
+{{#partial "contenido"}}
+
+    <div class="d-flex justify-content-center align-items-center pt-3">
+        <h1 class="h2">Reportes</h1>
+        <button class="btn btn-primary" onclick="window.location.href='/reportes/{fecha}/generar-instantaneo'">
+            Descargar PDF Ahora
+        </button>
+    </div>
+    <div class="d-flex justify-content-center align-items-center flex-grow-1 pb-5">
+        <div class="row justify-content-center w-100">
+            <div class="col-md-10">
+                <div class="reportes">
+                    <h4>Mis Reportes</h4>
+                    <p>Aquí podrás observar los distintos reportes generados por el sistema</p>
+
+                    <!-- Mostrar mensajes de sesión -->
+                    {{#if session.error}}
+                        <div class="alert alert-danger">{{session.error}}</div>
+                    {{/if}}
+                    {{#if session.success}}
+                        <div class="alert alert-success">{{session.success}}</div>
+                    {{/if}}
+
+                    {{#if reportes.length}}
+                        {{#each reportes}}
+                            <div class="reporte-item">
+                                <div class="title" onclick="toggleReporte(this)">Reporte del {{fecha}}</div>
+                                <div class="detalle" style="display: none;">
+                                     <button class="btn custom-btn" onclick="window.location.href='/reportes/{{fecha}}/download'">Descargar PDF</button>
+                                </div>
+                            </div>
+                        {{/each}}
+                    {{else}}
+                        <p>No hay reportes disponibles.</p>
+                    {{/if}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleReporte(element) {
+            const detalle = element.nextElementSibling;
+            detalle.style.display = detalle.style.display === 'none' || detalle.style.display === '' ? 'flex' : 'none';
+        }
+
+        function mostrarMensajeExito() {
+            const successMessage = "{{session.success}}"; // Obtener el mensaje de éxito
+            if (successMessage) {
+                alert(successMessage); // Mostrar el mensaje en un alert
+                // O puedes mostrarlo en un div específico
+                // document.getElementById("mensajeExito").innerText = successMessage;
+            }
+        }
+
+        // Llama a mostrarMensajeExito después de cargar la página
+        window.onload = mostrarMensajeExito;
+    </script>
+{{/partial}}
+{{> templates/base title="Reportes - NutreVidas"}}
+
+
+

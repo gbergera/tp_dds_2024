@@ -1,0 +1,155 @@
+{{#partial "contenido"}}
+    <h3 class="text-center my-4">Incidentes Asignados a {{tecnico.nombre}}</h3>
+
+    <!-- Sección de Cards -->
+    <div class="row" id="productContainer">
+        {{#if incidentes.length}}
+            {{#each incidentes}}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-lg border-0" style="border-radius: 15px; overflow: hidden;">
+                        {{#if this.foto}}
+                            <img src="/imagenes/{{this.foto}}" alt="{{this.id}}" class="card-img-top clickable-image" style="height: 200px; object-fit: cover; border-top-left-radius: 15px; border-top-right-radius: 15px;" data-bs-toggle="modal" data-bs-target="#imageModal" data-image="/imagenes/{{this.foto}}">
+                        {{else}}
+                            <img src="/imagenes/sinfoto.jpg" alt="{{this.id}}" class="card-img-top" style="height: 200px; object-fit: cover; border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                        {{/if}}
+
+                        <div class="card-body">
+                            <h5 class="card-title">Heladera afectada: <strong>{{this.heladeraAfectada.nombre}}</strong></h5>
+
+                            <p class="card-text">
+                                <i class="fas fa-map-marker-alt text-muted"></i>
+                                <small class="text-muted"> {{this.heladeraAfectada.direccionActual.direccionCompleta}}</small>
+                            </p>
+
+                            <p class="card-text">
+                                <i class="fas fa-user text-muted"></i>
+                                <small class="text-muted">{{#if this.comunicador}}{{this.comunicador.nombre}} {{this.comunicador.apellido}}{{else}}Generado Por Sensores{{/if}}</small>
+                            </p>
+
+                            <p class="card-text">{{this.detalle}}</p>
+                            <p class="card-text"><small class="text-muted">{{this.descripcion}}</small></p>
+
+                            <p class="card-text">
+                                <strong>Estado:</strong>
+                                {{#if this.solucionado}}
+                                    <span class="badge bg-success">Solucionado</span>
+                                {{else}}
+                                    <span class="badge bg-danger">No Solucionado</span>
+                                {{/if}}
+                            </p>
+
+                            <div class="d-flex flex-column justify-content-between">
+                                <small class="text-muted mb-3" data-date="{{this.fechaYHora}}">
+                                    <i class="fas fa-calendar-alt me-1"></i>
+                                </small>
+
+                                <div class=" d-flex justify-content-between">
+                                    <a href="/tecnico/visitas/{{this.id}}" class="btn btn-secondary btn-sm w-100 me-2">
+                                        <i class="fas fa-eye me-1"></i> Ver Visitas
+                                    </a>
+
+                                    {{#if this.solucionado}}
+                                    {{else}}
+                                        <button class="btn custom-btn btn-sm w-100" data-bs-toggle="modal" data-bs-target="#visitaModal" data-id="{{this.id}}" style="border-radius:10px;">
+                                            <i class="fas fa-plus-circle me-1"></i> Registrar Visita
+                                        </button>
+                                    {{/if}}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {{/each}}
+        {{else}}
+            <div class="col-md-12">
+                <div class="alert alert-warning text-center" role="alert">
+                    No tienes incidentes asignados.
+                </div>
+            </div>
+        {{/if}}
+    </div>
+{{/partial}}
+
+{{#partial "modals"}}
+    <div class="modal fade" id="visitaModal" tabindex="-1" aria-labelledby="visitaModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="visitaModalLabel">Registrar Visita</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="visitaForm" action="/tecnico/visita/" method="post" enctype="multipart/form-data">
+                        <input type="hidden" id="reporteId" name="reporteId">
+                        <div class="mb-3">
+                            <label for="fechaYHora" class="form-label">Fecha y Hora</label>
+                            <input type="datetime-local" class="form-control" id="fechaYHora" name="fechaYHora" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Descripción</label>
+                            <textarea class="form-control" id="descripcion" name="descripcion" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="foto" class="form-label">Foto</label>
+                            <input type="file" class="form-control" id="foto" name="foto" multiple accept="image/*">
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="solucionado" name="solucionado">
+                            <label class="form-check-label" for="solucionado">Solucionado</label>
+                        </div>
+                        <button type="submit" class="btn custom-btn" id="saveVisitaButton" >Registrar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for displaying the image -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="imageModalLabel">Foto de la Visita</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modalImage" src="" alt="Foto de la visita" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+
+{{/partial}}
+
+{{#partial "scripts"}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateElements = document.querySelectorAll('small[data-date]');
+            dateElements.forEach(element => {
+                const rawDate = element.getAttribute('data-date');
+                const date = new Date(rawDate);
+                const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                element.textContent += ' ' + date.toLocaleDateString(undefined, options);
+            });
+        });
+
+         const visitaModal = document.getElementById('visitaModal');
+            visitaModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const incidenteId = button.getAttribute('data-id');
+                const visitaForm = document.getElementById('visitaForm');
+                visitaForm.querySelector('#reporteId').value = incidenteId;
+            });
+
+
+        // Handle image click to show in modal
+        const imageModal = document.getElementById('imageModal');
+        imageModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            const imageUrl = button.getAttribute('data-image');
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = imageUrl;
+        });
+    </script>
+{{/partial}}
+{{>templates/tecnico-base}}
